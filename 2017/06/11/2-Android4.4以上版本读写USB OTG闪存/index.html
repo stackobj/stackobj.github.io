@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="写这篇文章的目的，主要是记录下Android开发板读写USB闪存的过程，测试环境是全志A64开发板，系统版本是Android 5.1。">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android4.4以上版本读写USB OTG闪存">
+<meta property="og:url" content="http://yoursite.com/2017/06/11/2-Android4.4以上版本读写USB OTG闪存/index.html">
+<meta property="og:site_name" content="黄凌霄的技术专栏">
+<meta property="og:description" content="写这篇文章的目的，主要是记录下Android开发板读写USB闪存的过程，测试环境是全志A64开发板，系统版本是Android 5.1。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/img/es文件管理器.jpg">
+<meta property="og:image" content="http://yoursite.com/img/es文件管理器2.jpg">
+<meta property="og:updated_time" content="2018-05-11T14:34:36.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android4.4以上版本读写USB OTG闪存">
+<meta name="twitter:description" content="写这篇文章的目的，主要是记录下Android开发板读写USB闪存的过程，测试环境是全志A64开发板，系统版本是Android 5.1。">
+<meta name="twitter:image" content="http://yoursite.com/img/es文件管理器.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"always","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/06/11/2-Android4.4以上版本读写USB OTG闪存/"/>
+
+
+
+
+
+  <title>Android4.4以上版本读写USB OTG闪存 | 黄凌霄的技术专栏</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">黄凌霄的技术专栏</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">不积跬步 无以致千里 不积小流 无以成江海</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/06/11/2-Android4.4以上版本读写USB OTG闪存/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="黄凌霄">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myhead.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="黄凌霄的技术专栏">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android4.4以上版本读写USB OTG闪存</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-06-11T14:31:00+08:00">
+                2017-06-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>写这篇文章的目的，主要是记录下Android开发板读写USB闪存的过程，测试环境是全志A64开发板，系统版本是Android 5.1。<br> <a id="more"></a></p>
+<h2 id="什么是USB-OTG"><a href="#什么是USB-OTG" class="headerlink" title="什么是USB OTG"></a>什么是USB OTG</h2><p>可以参考这篇文章：<a href="http://blog.csdn.net/srw11/article/details/39154053" target="_blank" rel="noopener">http://blog.csdn.net/srw11/article/details/39154053</a></p>
+<p>先说说读写内置存储卡</p>
+<p>先说内置存储卡的读写过程，内置存储卡的读写过程就是常规的读写方法：<br>（1）首先在Mainfest.xml文件里声明相关的权限：</p>
+<pre><code>&lt;uses-permission android:name=&quot;android.permission.MOUNT_UNMOUNT_FILESYSTEMS&quot; /&gt; 
+&lt;uses-permission android:name=&quot;android.permission.WRITE_EXTERNAL_STORAGE&quot; /&gt;
+</code></pre><p>（2）然后通过过 Enviroment.getExternalStorageDirectory() 这个方法就可以获取到内置存储卡的根目录，也可以通过</p>
+<pre><code>Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)
+</code></pre><p>来判断内置的这个存储卡是否被正常挂载。<br>（3）写入数据到文件：</p>
+<pre><code>FileOutputStream fos = new FileOutputStream(filepath);
+fos.write(&quot;这里是输出内容……&quot;.getBytes());
+</code></pre><h2 id="ES文件管理器的读写U盘的过程"><a href="#ES文件管理器的读写U盘的过程" class="headerlink" title="ES文件管理器的读写U盘的过程"></a>ES文件管理器的读写U盘的过程</h2><p>观察ES文件浏览器读写U盘的过程，当开发板插入U盘以后，ES文件浏览器可以获取到U盘文件列表，所以可以推测，ES是检测/storage/usbhost/这个目录下是否有文件来判断的。当使用ES创建文件或者文件夹的时候，ES文件浏览器弹出了下图这个提示（注：由于开发板尚不能截屏，本图是从网络上获取到的，回头补上），按照Dialog提示的，点击“选择” ，打开如下第二个界面，点击“选择SD卡”，界面自动返回到APP，ES文件浏览器提示创建文件成功。由此可以断定，第三方APP读取U盘是需要申请权限的，并且由用户来决定第三方APP有权限修改U盘的哪些文件目录。<br><img src="/img/es文件管理器.jpg" alt="AndroidEs文件管理器"></p>
+<p>点击上图的“选择”按钮打开的界面：<br><img src="/img/es文件管理器2.jpg" alt="AndroidEs文件管理器"></p>
+<p>读写U盘实践</p>
+<p>首先读取U盘路径的话，可以通过检测/storage/usbhost/是否有有挂载U盘设备文件来判断，通过常规的file.listfile()方法即可得到文件目录，下面着重说一下写文件的过程。</p>
+<p>（1）当需要创建文件的时候，首先通过一个Intent打开设备管理界面，申请写权限，代码如下：</p>
+<pre><code>Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE); 
+startActivityForResult(intent, REQUEST_CODE);
+</code></pre><p>（2）用户选择一个可写的目录以后，返回给第三方APP：</p>
+<pre><code>@Override
+protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+
+    if (requestCode == REQUEST_CODE &amp;&amp; resultCode == RESULT_OK) {
+
+        Log.i(TAG,&quot;授权成功&quot;);
+        Uri treeUri = data.getData();
+
+        //保存授权的路径uri 下次启动的时候 如果检测到U盘 就判断下这个uri有没有写入权限 没有权限就重新申请 有权限就继续
+        CacheHelper.saveCacheData(ReqCmd.SHAREPRFER_KEY_AbleWriteUsbFlashDirUri,treeUri.toString(),false);
+
+
+        // 使应用获得对uri的永久权限，避免重启后上面保存的uri失效
+        final int takeFlags = data.getFlags() &amp; (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        getContentResolver().takePersistableUriPermission(treeUri, takeFlags);
+
+        initEquipment();
+
+    }else{
+
+        Log.i(TAG,&quot;授权取消&quot;);
+        finish();
+    }
+}
+</code></pre><p>通过treeUri可以构造一个DocumentFile对象，这个对象提供了一些读写文件API。不同的U盘获取到的treeUri不一样，并且获取获取到写文件权限以后，权限并不是永久的，所以这个treeUri可以保存起来，通过下面这个方法判断对这个treeUri是否有写入的权限，没有的话再去通过Intent申请权限。</p>
+<p>（3）判断treeUri是否有写权限</p>
+<pre><code>/**
+ * 这个Uri是否有写权限
+ * @param uri
+ * @return
+ */
+public static boolean isHaveWritePerssiomnForUri(Context mContext,Uri uri){
+
+    Log.i(TAG,&quot;判断Uri是否有写权限：&quot;+uri.toString());
+    if(TextUtils.isEmpty(uri.toString())){
+        Log.e(TAG,&quot;目标Uri是空的 ，不能判断是否有写权限！&quot;);
+        return false;
+    }
+
+    List&lt;UriPermission&gt; permissionList = mContext.getContentResolver().getPersistedUriPermissions();
+    if(null!=permissionList &amp;&amp; permissionList.size()&gt;0){
+        for(int i=0;i&lt;permissionList.size();i++){
+            Log.e(TAG,&quot;遍历到一个可写权限的Uri：&quot;+permissionList.get(i).toString());
+            if(permissionList.get(i).toString().contains(uri.toString())){
+                return true;
+            }
+        }
+
+        return false;
+    }else{
+        return false;
+    }
+
+}
+</code></pre><p>getContentResolver().getPersistedUriPermissions();可以得到已经获取写权限的treeUri列表，通过比对目标treeUri是否在这个列表里，可以得知目标treeUri是否有写入权限。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/06/11/1-App和Android开发板串口通讯的原理和实践/" rel="next" title="App和Android开发板串口通讯的原理和实践">
+                <i class="fa fa-chevron-left"></i> App和Android开发板串口通讯的原理和实践
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/06/21/3-Android开发中px，dp，dpi的含义和区别以及屏幕适配基础/" rel="prev" title="Android开发中px，dp，dpi的含义和区别以及屏幕适配基础">
+                Android开发中px，dp，dpi的含义和区别以及屏幕适配基础 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/myhead.jpg"
+                alt="黄凌霄" />
+            
+              <p class="site-author-name" itemprop="name">黄凌霄</p>
+              <p class="site-description motion-element" itemprop="description">Android App开发从业5年，参与过智慧校园、智能家居、智慧生活，网约车等领域的多个项目的研发工作。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是USB-OTG"><span class="nav-number">1.</span> <span class="nav-text">什么是USB OTG</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ES文件管理器的读写U盘的过程"><span class="nav-number">2.</span> <span class="nav-text">ES文件管理器的读写U盘的过程</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">黄凌霄</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

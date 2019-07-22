@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Android智能家居的概念提出来很多年了，我本人也全程或部分开发了几个智能家居的产品，这类的产品通常需要利用蓝牙或串口与外部设备等以字节为数据格式进行交互，如智能门锁。很多手机或平板并没有串口，因为我们在日常生活使用中，用不到串口，所以很多厂商就在设备出厂的时候把串口去掉了，所以导致很多人并不了解Android和外部设备通信方式除了USB，蓝牙还有串口。串口只是Android和外部设备通信的方式">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android自定义通信协议通讯架构及优化方案">
+<meta property="og:url" content="http://yoursite.com/2017/12/24/14-Android自定义通信协议通讯架构及优化方案/index.html">
+<meta property="og:site_name" content="黄凌霄的技术专栏">
+<meta property="og:description" content="Android智能家居的概念提出来很多年了，我本人也全程或部分开发了几个智能家居的产品，这类的产品通常需要利用蓝牙或串口与外部设备等以字节为数据格式进行交互，如智能门锁。很多手机或平板并没有串口，因为我们在日常生活使用中，用不到串口，所以很多厂商就在设备出厂的时候把串口去掉了，所以导致很多人并不了解Android和外部设备通信方式除了USB，蓝牙还有串口。串口只是Android和外部设备通信的方式">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-07-22T15:21:12.052Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android自定义通信协议通讯架构及优化方案">
+<meta name="twitter:description" content="Android智能家居的概念提出来很多年了，我本人也全程或部分开发了几个智能家居的产品，这类的产品通常需要利用蓝牙或串口与外部设备等以字节为数据格式进行交互，如智能门锁。很多手机或平板并没有串口，因为我们在日常生活使用中，用不到串口，所以很多厂商就在设备出厂的时候把串口去掉了，所以导致很多人并不了解Android和外部设备通信方式除了USB，蓝牙还有串口。串口只是Android和外部设备通信的方式">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"always","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/12/24/14-Android自定义通信协议通讯架构及优化方案/"/>
+
+
+
+
+
+  <title>Android自定义通信协议通讯架构及优化方案 | 黄凌霄的技术专栏</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">黄凌霄的技术专栏</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">不积跬步 无以致千里 不积小流 无以成江海</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/24/14-Android自定义通信协议通讯架构及优化方案/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="黄凌霄">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myhead.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="黄凌霄的技术专栏">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android自定义通信协议通讯架构及优化方案</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-24T10:31:00+08:00">
+                2017-12-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Android智能家居的概念提出来很多年了，我本人也全程或部分开发了几个智能家居的产品，这类的产品通常需要利用蓝牙或串口与外部设备等以字节为数据格式进行交互，如智能门锁。很多手机或平板并没有串口，因为我们在日常生活使用中，用不到串口，所以很多厂商就在设备出厂的时候把串口去掉了，所以导致很多人并不了解Android和外部设备通信方式除了USB，蓝牙还有串口。串口只是Android和外部设备通信的方式之一。</p>
+<p>这篇文章我将以我目前正在做的这个智能家居产品项目为例，讲解下关于智能家居类产品开发的相关知识点，并分享一个Android和外部设备通信框架代码的设计和优化方案，文章有以下几个小节：</p>
+<p>① 为什么要自定义通信协议<br>② 通信协议的设计原则<br>③ 发送数据和接收数据核心代码简单演示<br>④ 通信框架代码设计原则<br>⑤ 一个通信框架代码的设计和优化方案</p>
+<a id="more"></a>
+<h2 id="一、为什么要规定通信协议"><a href="#一、为什么要规定通信协议" class="headerlink" title="一、为什么要规定通信协议"></a>一、为什么要规定通信协议</h2><p>无论是蓝牙还是串口通讯，Android都为我们提供了发送数据的方法和接收数据的方法，并且发送和接收方法的参数都是字节数组。这使得我们必须以字节数组的方式进行通信。所以通信的双方需要商量好，当接收到特定格式，特定内容的数据的时候，就做相应的处理，这就是为什么要规定通信协议的原因。</p>
+<p>比如我们可以在代码里面调用发送数据的方法，发送一个特定内容特定长度的一个16进制的字节数组FAA5， 当硬件接收到数据发现内容是FAA5的时候就做相应的处理。这就是一个最简单的通讯协议，因为我们事先沟通了通讯的内容和长度要求，以及接收到内容以后的处理动作。接收数据也是同样的，当接收到特定内容的时候，就做相应的处理。</p>
+<h2 id="二、通信协议的设计原则"><a href="#二、通信协议的设计原则" class="headerlink" title="二、通信协议的设计原则"></a>二、通信协议的设计原则</h2><p>看到这里或许读者会说，这不就是个很简单的问题吗，就像上面那样接收或发送相应的内容作为命令，硬件接收到做出相应的处理不就可以了吗？但实际上远没有那么简单，因为我们要做产品，不是做个demo，对于通信协议的设计我们需要提出更多的要求，考虑更多问题，通常通讯协议帧的格式应该满足以下几个要求：</p>
+<h4 id="①-能够承载变长的数据内容"><a href="#①-能够承载变长的数据内容" class="headerlink" title="① 能够承载变长的数据内容"></a>① 能够承载变长的数据内容</h4><p>这个很好理解，既然要通信肯定要传递数据，并且数据的长度是不确定的。</p>
+<h4 id="②-应有帧头帧尾表明一帧的结束"><a href="#②-应有帧头帧尾表明一帧的结束" class="headerlink" title="② 应有帧头帧尾表明一帧的结束"></a>② 应有帧头帧尾表明一帧的结束</h4><p>数据在接收的时候是以字节划分的，所以要有标识位，表明一包从哪开始从哪结束。</p>
+<h4 id="③-应有长度标志位表明帧的长度"><a href="#③-应有长度标志位表明帧的长度" class="headerlink" title="③ 应有长度标志位表明帧的长度"></a>③ 应有长度标志位表明帧的长度</h4><p>因为含有变长数据，所以每包的长度在接收到帧尾之前都是不确定的，有了长度声明位，能够更好的接收数据包，并且判断接收到的数据包的准确性。</p>
+<h4 id="④-应有帧序号表明帧的唯一性"><a href="#④-应有帧序号表明帧的唯一性" class="headerlink" title="④ 应有帧序号表明帧的唯一性"></a>④ 应有帧序号表明帧的唯一性</h4><p>帧序号相当于数据包的唯一的一个id，帧序号主要用于判断接收到的包和需要等待应答的请求包的对应关系，这个我在下面会详细讲到。</p>
+<h4 id="⑤-应有帧标识表明帧的类型"><a href="#⑤-应有帧标识表明帧的类型" class="headerlink" title="⑤ 应有帧标识表明帧的类型"></a>⑤ 应有帧标识表明帧的类型</h4><p>帧标识相当于网络接口URL，他决定了接收到数据以后如何处理和响应。</p>
+<h4 id="⑥-应有CRC校验位保证接收到的数据准确性"><a href="#⑥-应有CRC校验位保证接收到的数据准确性" class="headerlink" title="⑥ 应有CRC校验位保证接收到的数据准确性"></a>⑥ 应有CRC校验位保证接收到的数据准确性</h4><p>这个很容易理解，因为数据在传输的过程中会因为和外部设备连接问题导致误码等问题，有了CRC能够准确判断接收到的数据包是否是准确无误的。</p>
+<p>另外帧头帧尾的设计原则还应尽量保证不会和内容冲突。</p>
+<p>下面是我设计的通信协议帧格式：</p>
+<p>帧头(2字节)     总长度（4字节）报文标识（2字节）序号（8字节）<br>负载内容（变长）校验位（2字节）帧尾（2字节）</p>
+<h2 id="三、发送数据接收数据代码简单演示"><a href="#三、发送数据接收数据代码简单演示" class="headerlink" title="三、发送数据接收数据代码简单演示"></a>三、发送数据接收数据代码简单演示</h2><p>看到上面的自定义协议的设计原则，读者读到这里或许会明白了，也许读者又会说了，我们直接在Activity里面直接写一堆字节码发送给硬件，或者在Activity里面接收一堆字节码去校验解析处理不就可以了吗？其实如果这样写的话，代码是没有任何扩展性和可读性的，因为一旦后期协议改了一点，那对于这种代码，改的工作量是巨大的。</p>
+<p>我们先用一段伪代码来演示下发送字节码和接收字节码的核心代码，具体演示下为什么不能这么写：</p>
+<pre><code>public class TestSendReceCoreActivity extends Activity{
+
+   @overider
+   protect void onCreate(Bundle bundle){
+      setContentView(R.layout.activity_sendrececore);
+
+      //测试发送命令
+      byte[] senddata = “testsendCommand”.getBytes();
+      send(senddata);
+
+      //开始接收数据线程
+      receDataListener();
+
+   }
+
+   /*发送字节数据*/
+   public synchronized boolean send(byte[] bOutArray) { 
+      mOutputStream.write(bOutArray); 
+      Log.i(TAG, &quot;发送数据成功！&quot;); 
+      return true; 
+   }
+
+    //接收数据
+   private void receDataListener() {
+
+  new Thread(new Runnable() {
+      @Override
+      public void run() {
+         while (true) {
+
+            Log.i(TAG, &quot;正在等待接收数据……&quot;);
+            int count = 0;
+            while (count == 0) {
+                //判断有多少字节数据可以接收
+                count = mInputStream.available();
+            }
+
+            //读取count个字节的数据
+            byte[] b = new byte[count]；
+            mInputStream.read(b);
+            Log.i(TAG, &quot;接收到数据：&quot; + ByteTools.byteArr2hexStr(b));
+
+            //对字节数据进行处理，如果不符合条件 如没有帧尾 就继续接收，否则就进行crc校验取出帧负载内容
+
+
+        }
+     }
+});
+
+   }
+}
+</code></pre><p>上面这段伪代码，演示了字节码通信的核心代码的一般使用方法，即需要先实例化一个字节数组作为发送数据，然后调用发送方法；接收数据的逻辑，必须要在新的线程去接收，一旦发现有数据可以接收，就把数据从输入流里读取到字节数组里，再进行相应的操作。</p>
+<h2 id="四、通信框架代码设计原则"><a href="#四、通信框架代码设计原则" class="headerlink" title="四、通信框架代码设计原则"></a>四、通信框架代码设计原则</h2><p>如果我们仅仅是为了演示发送和接收的核心代码的使用，上面那样写没有问题，但是如果我们要做产品，我们就需要对代码的抽象和封装提出更多的要求：</p>
+<h4 id="①-通信协议的调整不影响业务代码"><a href="#①-通信协议的调整不影响业务代码" class="headerlink" title="① 通信协议的调整不影响业务代码"></a>① 通信协议的调整不影响业务代码</h4><p>什么是业务代码？就是Activity里面的业务逻辑代码，发送什么数据，接收什么数据，触发什么操作等。当我们对通信协议有部分调整的时候，不应该影响Activity里的业务代码。</p>
+<h4 id="②-调用者无需关心发送和接收数据的具体细节"><a href="#②-调用者无需关心发送和接收数据的具体细节" class="headerlink" title="② 调用者无需关心发送和接收数据的具体细节"></a>② 调用者无需关心发送和接收数据的具体细节</h4><p>这也是很多Java设计模式的核心思想的一个体现，即Activity里面需要发送某个数据给外部设备的时候，不需要关注数据经过了什么加工，如何发送的，调用者只需要将发送的命令和数据传递过来就可以了。</p>
+<h4 id="③-调用者能够选择性的决定是否需要等待应答数据"><a href="#③-调用者能够选择性的决定是否需要等待应答数据" class="headerlink" title="③ 调用者能够选择性的决定是否需要等待应答数据"></a>③ 调用者能够选择性的决定是否需要等待应答数据</h4><p>这句话或许有点难以理解，其实意思是Activity里的业务代码，可以选择发送一个不需要外部设备回复的数据包，即发送完就不管了，也可以发送一个必须等待外部设备回复的数据包，并且在一定时间内，外部设备没有回复这个包，调用者能够感知到。</p>
+<h4 id="④-调用者可以决定是否重发以及重发次数"><a href="#④-调用者可以决定是否重发以及重发次数" class="headerlink" title="④ 调用者可以决定是否重发以及重发次数"></a>④ 调用者可以决定是否重发以及重发次数</h4><p>这个不需要多解释，因为物理层的通信链路的情况无法预测，当发送失败的时候，框架应能够重发一定的次数。</p>
+<h4 id="⑤-发送过程的每个状态应该能回调给调用者"><a href="#⑤-发送过程的每个状态应该能回调给调用者" class="headerlink" title="⑤ 发送过程的每个状态应该能回调给调用者"></a>⑤ 发送过程的每个状态应该能回调给调用者</h4><p>例如Activity里的调用者，发送了一段数据给外部设备，那么调用者应该可以知道这个数据何时准备发送，正在发送，发送完成，以及发送结果这些状态。</p>
+<p>最重要的大概就是上面这些了，其实还有很多，例如：待发送和接收待处理的数据应有优先级，重要的数据需要先处理，并且这些优先级的配置可以统一配置和管理。</p>
+<p><strong>其实总结下来就是一个思想：高内聚，低耦合。每个模块专一做每个模块的事情，其他模块的修改对当前模块影响越低越好。</strong>如果我们能知道如何给这个框架划分模块，那么问题就解决了一半。该如何给这个框架划分模块，分清职责呢？请读者接着往下看。</p>
+<h2 id="五、一个通信框架代码的搭建方案"><a href="#五、一个通信框架代码的搭建方案" class="headerlink" title="五、一个通信框架代码的搭建方案"></a>五、一个通信框架代码的搭建方案</h2><p>在本篇文章的上面的部分，我主要讲解了为什么要自定义通信协议，通信协议的设计的原则，通信框架代码的设计原则。接下来，就到了这篇文章最核心的内容，就是我们该如何设计一个高效的框架代码，满足上面四中所说的那么多要求呢？这里我用我在实际开发中的一个项目为例子，给大家分享下我解决问题的过程，通信协议大家可以参考文章开始我写出的那个协议例子，我相信大家在读完本节以后，写出一个可扩展、可维护、可读性高的代码不是困难的问题。</p>
+<h6 id="这个项目的需求是这样的，Android系统需要通过串口和底层硬件通信，Android系统和硬件都分别担当主机和从机，主动发送数据或被动接收数据，部分数据包需要等待硬件应答，数据包需要能够承载一定大小的负载内容，并且要保证接收数据的准确性。"><a href="#这个项目的需求是这样的，Android系统需要通过串口和底层硬件通信，Android系统和硬件都分别担当主机和从机，主动发送数据或被动接收数据，部分数据包需要等待硬件应答，数据包需要能够承载一定大小的负载内容，并且要保证接收数据的准确性。" class="headerlink" title="这个项目的需求是这样的，Android系统需要通过串口和底层硬件通信，Android系统和硬件都分别担当主机和从机，主动发送数据或被动接收数据，部分数据包需要等待硬件应答，数据包需要能够承载一定大小的负载内容，并且要保证接收数据的准确性。"></a>这个项目的需求是这样的，Android系统需要通过串口和底层硬件通信，Android系统和硬件都分别担当主机和从机，主动发送数据或被动接收数据，部分数据包需要等待硬件应答，数据包需要能够承载一定大小的负载内容，并且要保证接收数据的准确性。</h6><p>这个项目的通信要求基本和大部分类似的项目的通信要求是一样的。我在解决这个问题的时候，把问题大概分解为了两个部分：发送和接收。如果我们能够很好的处理发送问题和接收问题，然后再把发送和接收有机的配合，这个问题就解决了。</p>
+<h4 id="1、发送的逻辑"><a href="#1、发送的逻辑" class="headerlink" title="1、发送的逻辑"></a>1、发送的逻辑</h4><p>我们先来看发送，类似我们写信寄信的过程，先写信然后套上信封，然后寄出信件。我把发送这个过程分为了三层：用户层，包装层，链路层。用户层就是Activity里的业务代码，用于产生数据；包装层负责给数据包一层公共部分的数据，相当于套上信封；链路层主要负责从发送队列里面取出包装好的数据包发送。</p>
+<p>具体在代码里面是这样的，调用者需要和硬件通信的时候，需要传三个值：发送命令，负载内容，状态回调接口。发送命令好比访问网络接口的URL，他决定了接收者接收到数据以后如何响应；这个数据传给包装层以后，被加上帧头帧尾，帧序号，帧长度，crc等封装成数据包类型；然后包装好的数据包对象和状态回调接口传递给链路层，链路层把包装好的数据包类型和状态回调接口这两个值封装为一个发送队列对象类型，发送队列会不停的从发送队列里取出发送对象转换成字节发送，这里注意的是：数据包对象里面要有方法能够把数据包里面的各个字段转为字节数组。如此就完成了一个发送的过程。整个过程数据在各层的状态也就是：通信指令，负载内容，回调接口–&gt;数据包类型，回调接口–&gt;发送队列对象类型</p>
+<p>这样的好处是每一层是互相隔离的，他们并不知道其他层的实现细节，使得代码之间没有产生耦合。</p>
+<h4 id="2、接收的逻辑"><a href="#2、接收的逻辑" class="headerlink" title="2、接收的逻辑"></a>2、接收的逻辑</h4><p>有了上面发送的逻辑，我们再来看接收，接收相对发送而言要复杂一些。我们先自底向上分析。同样分为三层：链路层，拆包层，用户层。</p>
+<p>链路层负责接收字节原始数据包，如果这个原始数据包符合基本条件（长度符合包中声明的长度，并且帧头帧尾在合适的位置等），将其交给拆包层。</p>
+<p>这里要特别说明的是如何高效准确地接收原始数据包，这块是需要重点考虑的，大家在上面的发送和接收核心代码演示里也看到了，接收是需要先判断缓冲区有多少字节可以接收，然后再实例化一个对应大小的字节数组去读取的，接收完整的一个数据包可能需要多次判断待读取大小。我说下我的处理逻辑：① 首先要根据协议从输入流里面读取帧头+帧长度位个字节，例如帧头2字节，帧长度位4字节，我们就先从输入流里面读取6字节，如果输入流里面不够6字节就继续接收。如果接收的足够6字节，就判断这6字节是否有帧头，如果有就把长度声明取出来，并且如果帧头不在首位的话需要将帧头前面的部分去除掉再判断是否满足6字节的要求，满足6字节的要求以后，要先预判下这6字节中声明的包长度是否满足要求，比如声明的过大或小于空负载包的长度，如果声明不合法的话，直接丢弃前面接收的所有重新开始。声明合法的话，再根据声明的长度从流里面读取剩余大小个字节。② 数据都读取到以后，判断数据末尾是否为帧尾，如果不是帧尾就抛弃接收到的所有，重新开始接收，因为根据包长度声明读取到的剩余字节末尾应该是帧尾，如果不是帧尾那这个包肯定是有问题的，如果是帧尾就将这个原始数据包交给拆包层。总之关于接收逻辑这块只要认真花点时间思考都不是最困难的。</p>
+<p>拆包层负责对原始数据包进行CRC校验，如果正确，就生成数据包类型对象，并且会将其再包一层生成待处理队列对象类型等待接收逻辑按队列依次处理。之所以再包一层，是为了便于理解，因为发送队列对象类型里也包含数据包对象。</p>
+<p>用户层负责把数据包类型对象里的负载内容取出来，根据数据包类型对象里的帧标识，生成具体的业务对象，触发相应的操作。</p>
+<p>整个过程数据在各层的状态，简单来说就是：数据包类型–&gt;待处理队列对象类型–&gt;业务对象类型</p>
+<h4 id="3、发送和接收的配合"><a href="#3、发送和接收的配合" class="headerlink" title="3、发送和接收的配合"></a>3、发送和接收的配合</h4><p>上面说的发送和接收的逻辑是互相独立的，即发送是发送，接收是接收，并没有提到当一个发送需要等待一个唯一的应答包这样情况。这里我是这样处理的：</p>
+<p>首先我们回到发送队列那里，命令和负载内容被交给包装层以后，会给每个数据包对象设置一个唯一的帧序号，如果需要应答，外部设备会回复一个相同帧序号的应答包。在我们从发送队列里面，把发送队列对象类型里面的数据包转为字节发送出去以后，如果发送队列对象里面的状态回调接口不为空，就说明这个数据包需要等待应答，就将这个需要等待应答的数据包对象标记到接收逻辑里面，同时从接收逻辑的一个单元素队列顶部取元素，一定时间内取不到会挂起当前线程，直到取到元素；接收逻辑接收到数据包对象以后，对比接收的数据包对象和当前正在等待应答包，如果他们帧序号一致的话，就将这个数据包对象放到单元素队列，然后发送逻辑线程被激活，应答包回调给状态回调接口。如果一定时间内，接收逻辑的单元素队列迟迟没有新元素放入，发送逻辑同样会被激活，回调接口回调失败，</p>
+<p>总结下在发送和接收的过程中，总共使用了三个BlockingQueue队列：发送队列，待处理数据队列，应答包单元素队列；三个线程：发送线程，接收原始数据包线程，处理数据包对象线程。在线程内和线程之间尤其要注意数据的同步，合理和正确使用synchronized和volatile修饰符，如发送队列对象，接收队列对象，单元素锁队列对象，字节数据接收缓冲数组。由于项目代码过多并且代码涉及保密问题，这里就不再贴出源码了，相信经过我上面的分析，只要再努力一些，写出这个框架应该是不难的。或许这个通信框架代码的方案还不是最优的方案，因为项目还有很多的事情要做，就暂时没有具体细化，这里欢迎读者给我发邮件交流。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/20/13-总结下Android进程保活/" rel="next" title="总结下Android的进程保活">
+                <i class="fa fa-chevron-left"></i> 总结下Android的进程保活
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/07/22/15-Java的线程池分类以及使用/" rel="prev" title="Java的线程池分类以及使用">
+                Java的线程池分类以及使用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/myhead.jpg"
+                alt="黄凌霄" />
+            
+              <p class="site-author-name" itemprop="name">黄凌霄</p>
+              <p class="site-description motion-element" itemprop="description">Android App开发从业5年，参与过智慧校园、智能家居、智慧生活，网约车等领域的多个项目的研发工作。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、为什么要规定通信协议"><span class="nav-number">1.</span> <span class="nav-text">一、为什么要规定通信协议</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、通信协议的设计原则"><span class="nav-number">2.</span> <span class="nav-text">二、通信协议的设计原则</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#①-能够承载变长的数据内容"><span class="nav-number">2.0.1.</span> <span class="nav-text">① 能够承载变长的数据内容</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#②-应有帧头帧尾表明一帧的结束"><span class="nav-number">2.0.2.</span> <span class="nav-text">② 应有帧头帧尾表明一帧的结束</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#③-应有长度标志位表明帧的长度"><span class="nav-number">2.0.3.</span> <span class="nav-text">③ 应有长度标志位表明帧的长度</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#④-应有帧序号表明帧的唯一性"><span class="nav-number">2.0.4.</span> <span class="nav-text">④ 应有帧序号表明帧的唯一性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#⑤-应有帧标识表明帧的类型"><span class="nav-number">2.0.5.</span> <span class="nav-text">⑤ 应有帧标识表明帧的类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#⑥-应有CRC校验位保证接收到的数据准确性"><span class="nav-number">2.0.6.</span> <span class="nav-text">⑥ 应有CRC校验位保证接收到的数据准确性</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、发送数据接收数据代码简单演示"><span class="nav-number">3.</span> <span class="nav-text">三、发送数据接收数据代码简单演示</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、通信框架代码设计原则"><span class="nav-number">4.</span> <span class="nav-text">四、通信框架代码设计原则</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#①-通信协议的调整不影响业务代码"><span class="nav-number">4.0.1.</span> <span class="nav-text">① 通信协议的调整不影响业务代码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#②-调用者无需关心发送和接收数据的具体细节"><span class="nav-number">4.0.2.</span> <span class="nav-text">② 调用者无需关心发送和接收数据的具体细节</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#③-调用者能够选择性的决定是否需要等待应答数据"><span class="nav-number">4.0.3.</span> <span class="nav-text">③ 调用者能够选择性的决定是否需要等待应答数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#④-调用者可以决定是否重发以及重发次数"><span class="nav-number">4.0.4.</span> <span class="nav-text">④ 调用者可以决定是否重发以及重发次数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#⑤-发送过程的每个状态应该能回调给调用者"><span class="nav-number">4.0.5.</span> <span class="nav-text">⑤ 发送过程的每个状态应该能回调给调用者</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、一个通信框架代码的搭建方案"><span class="nav-number">5.</span> <span class="nav-text">五、一个通信框架代码的搭建方案</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#这个项目的需求是这样的，Android系统需要通过串口和底层硬件通信，Android系统和硬件都分别担当主机和从机，主动发送数据或被动接收数据，部分数据包需要等待硬件应答，数据包需要能够承载一定大小的负载内容，并且要保证接收数据的准确性。"><span class="nav-number">5.0.0.0.1.</span> <span class="nav-text">这个项目的需求是这样的，Android系统需要通过串口和底层硬件通信，Android系统和硬件都分别担当主机和从机，主动发送数据或被动接收数据，部分数据包需要等待硬件应答，数据包需要能够承载一定大小的负载内容，并且要保证接收数据的准确性。</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1、发送的逻辑"><span class="nav-number">5.0.1.</span> <span class="nav-text">1、发送的逻辑</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、接收的逻辑"><span class="nav-number">5.0.2.</span> <span class="nav-text">2、接收的逻辑</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、发送和接收的配合"><span class="nav-number">5.0.3.</span> <span class="nav-text">3、发送和接收的配合</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">黄凌霄</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Android的View是一个综合体系，它涉及View的层次结构，View的事件分发机制，View的绘制流程。上一节我们已经分析了View的层次结构和事件分发机制（链接：View知识体系[2] —— 从源码角度理解View的事件分发机制 ），这篇文章，我们来一步步分析下View的绘制流程。 View的绘制其实包含三个步骤：measure，layout，draw。measure过程是测量View或V">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="view知识体系（3）—— 浅析View的绘制流程">
+<meta property="og:url" content="http://yoursite.com/2017/10/17/6-view知识体系（3）—— 浅析View的绘制流程/index.html">
+<meta property="og:site_name" content="黄凌霄的技术专栏">
+<meta property="og:description" content="Android的View是一个综合体系，它涉及View的层次结构，View的事件分发机制，View的绘制流程。上一节我们已经分析了View的层次结构和事件分发机制（链接：View知识体系[2] —— 从源码角度理解View的事件分发机制 ），这篇文章，我们来一步步分析下View的绘制流程。 View的绘制其实包含三个步骤：measure，layout，draw。measure过程是测量View或V">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/img/android屏幕坐标参考图4.jpg">
+<meta property="og:updated_time" content="2018-05-11T14:34:36.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="view知识体系（3）—— 浅析View的绘制流程">
+<meta name="twitter:description" content="Android的View是一个综合体系，它涉及View的层次结构，View的事件分发机制，View的绘制流程。上一节我们已经分析了View的层次结构和事件分发机制（链接：View知识体系[2] —— 从源码角度理解View的事件分发机制 ），这篇文章，我们来一步步分析下View的绘制流程。 View的绘制其实包含三个步骤：measure，layout，draw。measure过程是测量View或V">
+<meta name="twitter:image" content="http://yoursite.com/img/android屏幕坐标参考图4.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"always","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/10/17/6-view知识体系（3）—— 浅析View的绘制流程/"/>
+
+
+
+
+
+  <title>view知识体系（3）—— 浅析View的绘制流程 | 黄凌霄的技术专栏</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">黄凌霄的技术专栏</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">不积跬步 无以致千里 不积小流 无以成江海</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/17/6-view知识体系（3）—— 浅析View的绘制流程/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="黄凌霄">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myhead.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="黄凌霄的技术专栏">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">view知识体系（3）—— 浅析View的绘制流程</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-17T15:17:41+08:00">
+                2017-10-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Android的View是一个综合体系，它涉及View的层次结构，View的事件分发机制，View的绘制流程。上一节我们已经分析了View的层次结构和事件分发机制（链接：View知识体系[2] —— 从源码角度理解View的事件分发机制 ），这篇文章，我们来一步步分析下View的绘制流程。</p>
+<p>View的绘制其实包含三个步骤：measure，layout，draw。measure过程是测量View或ViewGroup的宽高，layout过程是将View或ViewGroup放到合适的位置，draw过程就是绘制。下面来具体说说这三个步骤，本文将从以下几点开始：</p>
+<ol>
+<li>测量布局绘制从哪开始 </li>
+<li>什么是MeasureSpec </li>
+<li>View的measure过程 </li>
+<li>ViewGroup的measure过程</li>
+<li>layout过程 </li>
+<li>draw过程<a id="more"></a>
+</li>
+</ol>
+<h2 id="1、测量布局绘制从哪开始"><a href="#1、测量布局绘制从哪开始" class="headerlink" title="1、测量布局绘制从哪开始"></a>1、测量布局绘制从哪开始</h2><p>从上一篇文章我们已经知道Android的视图由Activity-&gt;PhoneWindows-&gt;DecorView-&gt;ContentView层层嵌套构成。当Activity对象被创建以后，会将DecorView添加到Windows中，同时创建ViewRootImpl对象和DecorView关联。这个ViewRootImpl就是ViewRoot。</p>
+<p>ViewRoot的performTraversals的方法会依次调用performMeasure，performLayout，performDraw三个方法，这三个方法会分别完成顶级View的measure，layout，draw。performMeasure会依次调用measure-&gt;onMeasure方法，onMeasure中会对子元素进行measure过程。这个时候measure流程便进行到子元素了。layout和draw和这个过程是类似的。</p>
+<h2 id="2、什么是MeasureSpec"><a href="#2、什么是MeasureSpec" class="headerlink" title="2、什么是MeasureSpec"></a>2、什么是MeasureSpec</h2><p>MeasureSpec是一个32位的整型值，高两位代表SpecMode，低30位代表SpecSize，SpecMode表示测量模式，SpecSize表示在某种测量模式下的规格大小。<br>MeasureSpec存在的目的主要是在View的逐层measure的过程中，让子元素知道他的父元素期望他的尺寸。<br>MeasureSpec的产生由父元素本身的MeasureSpec和子元素的LayoutParams（wrap和match，padding，margin等）共同决定，产生的MeasureSpec再交给子元素进行measure。</p>
+<p>SpecMode包含三种类型的值：</p>
+<p>① AT_MOST ：当子元素拿到由父类传过来的MeasureSpec里面的SpecMode为这种类型的时候，意在告诉这个子元素，这个子元素可以使用的空间是足够用的，子元素需要测量自己的子元素大小，然后告诉父元素他测量的结果。</p>
+<p>② EXACTLY ： 当子元素拿到由父类传过来的MeasureSpec里面的SpecMode为这种类型的时候，意在告诉这个子元素，这个子元素可以使用的空间是有限的。</p>
+<p>① UNSPECIFIED ：未知类型，这种类型View想多大就多大，用于系统内部，表示一种测量状态，不过目前我们暂时还使用不到暂不研究。</p>
+<p>MeasureSpec的产生过程举个例子先简单说下：比如有一个水平方向固定宽度的LinearLayout，并且这个LinearLayout嵌套一个子元素。在LinearLayout的onMeasure方法中，可以得到他自己在水平方向已经占用的尺寸。有这个LinearLayout本身的Padding，子元素的margin和宽度，所以这个LinearLayout可以得到他剩余的空间大小是SpecSize；这个LinearLayout又得知其子元素的宽度的参数是wrap_content，得到SpecMode为AT_MOST，SpecSize和SpecMode合成为一个MeasureSpec传递到子元素的onMeasure方法中，作为子元素测量自己和子元素大小的依据。</p>
+<p>这也就是上面说的那个结论：MeasureSpec的产生由父元素本身的MeasureSpec和子元素的LayoutParams（wrap和match，margin等）共同决定的。</p>
+<p>父元素的MeasureSpec和子元素的LayoutParams合成子元素的MeasureSpec有一个规则如下，左侧第一列代表子元素的LayoutParams，第一行代表父元素的SpecMode，parentsize为父元素中目前可以使用的大小，在下面的文章当中将介绍何时使用这个规则：</p>
+<p><img src="/img/android屏幕坐标参考图4.jpg" alt="AndroidEs屏幕坐标参考"></p>
+<h2 id="3、View的measure过程"><a href="#3、View的measure过程" class="headerlink" title="3、View的measure过程"></a>3、View的measure过程</h2><p>View的measure方法中会去调用View的onMeasure方法。View默认的onMeasure方法怎么实现的呢？</p>
+<pre><code>protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {  
+    setMeasuredDimension(
+      getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec),   
+      getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec)
+    );  
+}
+</code></pre><p>setMeasuredDimension函数是一个很关键的函数，它对View的成员变量mMeasuredWidth和mMeasuredHeight变量赋值，而measure的主要目的就是对View树中的每个View的mMeasuredWidth和mMeasuredHeight进行赋值，一旦这两个变量被赋值，则意味着该View的测量工作结束。</p>
+<p>首先说下 getSuggestedMinimumWidth()，他的作用是返回android:minWidth和背景的宽度两者最大的那个值。没有设置背景就返回android:minWidth，如果没有设置android:minWidth，返回0。</p>
+<p>再来看看getDefaultSize方法，还是以Width为例来说明。他的参数是getSuggestedMinimumWidth()和父元素传给他的MeasureSpec，MeasureSpec里面有父元素建议他的测量模式和大小：</p>
+<pre><code>/** 
+ * 作用是返回一个默认的值，如果MeasureSpec没有强制限制的话则使用提供的大小.否则在允许范围内可任意指定大小 
+ * 第一个参数size为提供的默认大小，第二个参数为测量的大小 
+ */ 
+ public static int getDefaultSize(int size, int measureSpec) { 
+   int result = size; 
+   int specMode = MeasureSpec.getMode(measureSpec); 
+   int specSize = MeasureSpec.getSize(measureSpec); 
+
+   switch (specMode) { 
+     case MeasureSpec.UNSPECIFIED: 
+       result = size; 
+       break; 
+     case MeasureSpec.AT_MOST: 
+     case MeasureSpec.EXACTLY: 
+       result = specSize; 
+       break; 
+   } 
+   return result; 
+ }
+</code></pre><p>由上面的代码可以明显看出，当父元素建议这个View的测量模式为AT_MOST和EXACTLY时，这个View的宽度直接返回父元素建议的宽度，即父元素目前可使用的大小。这个AT_MOST或EXACTLY怎么得来的呢？由上面那个4 x 4的表格可以知道，是由父元素和这个View的LayoutParams共同得来的。</p>
+<p>由上面那个4 x 4的表格还可以知道：当子元素的LayoutParams的宽度为wrap_content时，无论父元素的SpecMode为多少，父元素都会得出这个子元素建议的SpecMode都为AT_MOST，大小为parentsize，parentsize为父元素中目前可以使用的大小，这和使用mach_parent是相同的效果，为什么是这样的呢？从上面的getDefaultSize方法不难看出原因。所以当我们自己定义View的子类的时候，重写onMeasure方法的时候，需要注意到这一点，在wrap_content时，可以给View一个默认的尺寸。</p>
+<h2 id="4、ViewGroup的measure过程"><a href="#4、ViewGroup的measure过程" class="headerlink" title="4、ViewGroup的measure过程"></a>4、ViewGroup的measure过程</h2><p>ViewGroup除了执行自己的measure方法以外，还会遍历调用子元素的measure方法。ViewGroup没有重写View的onMeasure方法（ViewGroup继承于View），因为不同的ViewGroup布局子类有不同的布局特性，需要自己实现onMeasure方法来测量自己。</p>
+<p>ViewGroup提供了一个measureChildren方法执行for循环，对每一个子元素执行measureChild方法进行measure，当我们自己实现一个ViewGroup的时候，可以选择在onMeasure中调用这个方法来实现测量自定义View的子元素。</p>
+<p>measureChildren方法如下所示：</p>
+<pre><code>protected void measureChildren(int widthMeasureSpec, int heightMeasureSpec) {
+    final int size = mChildrenCount;
+    final View[] children = mChildren;
+    for (int i = 0; i &lt; size; ++i) {
+        final View child = children[i];
+        if ((child.mViewFlags &amp; VISIBILITY_MASK) != GONE) {
+            measureChild(child, widthMeasureSpec, heightMeasureSpec);
+        }
+    }
+}
+</code></pre><p>measureChild方法如下所示：</p>
+<pre><code>/** 
+ * 测量单个视图，将宽高和padding加在一起后交给getChildMeasureSpec去获得最终的测量值 
+ * @param child 需要测量的子View
+ * @param parentWidthMeasureSpec 父视图的宽详细测量值 
+ * @param parentHeightMeasureSpec 父视图的高详细测量值 
+ */  
+protected void measureChild(View child, int parentWidthMeasureSpec,  
+        int parentHeightMeasureSpec) {  
+    // 取得子视图的布局参数  
+    final LayoutParams childlp = child.getLayoutParams();  
+
+    // 通过getChildMeasureSpec获取最终的宽高详细测量值  
+    final int childWidthMeasureSpec = getChildMeasureSpec(parentWidthMeasureSpec,  
+            mPaddingLeft + mPaddingRight, childlp.width);  
+    final int childHeightMeasureSpec = getChildMeasureSpec(parentHeightMeasureSpec,  
+            mPaddingTop + mPaddingBottom, childlp.height);  
+
+    // 将计算好的宽高详细测量值传入measure方法，完成最后的测量  
+    child.measure(childWidthMeasureSpec, childHeightMeasureSpec);  
+}  
+</code></pre><p>由最后一句代码可以看出，最终执行了child.measure，测量过程在这里传递到了子元素，并且传入了得出的childWidthMeasureSpec 和childHeightMeasureSpec 。</p>
+<p>以生成childWidthMeasureSpec为例：getChildMeasureSpec使用了父元素的parentWidthMeasureSpec，父元素的 mPaddingLeft + mPaddingRight，lp.width。其中：</p>
+<p>① 父元素的parentWidthMeasureSpec和子元素childlp.width中的 SpecMode，用于合成子元素测量的SpecMode；</p>
+<p>② 父元素的mPaddingLeft + mPaddingRight和子元素childlp.width中的magrin等用于得到子元素可以使用的剩余空间，也就是4×4表格中的parentsize。</p>
+<p>③ 上面两条得出的两个值生成一个MeasureSpec，生成的规则就是上面那个4×4的表格的规则。</p>
+<p>我们知道View的onMeasure中执行了setMeasuredDimension来设置mMeasuredWidth和mMeasuredHeight从而完成measure过程。而各种ViewGroup之所以没有实现onMeasure方法来设置mMeasuredWidth和mMeasuredHeight是因为不同的ViewGroup有不同的特性，这就导致他们的测量规则不同。如LinearLayout和RelativeLayout，显然如果包裹同样的元素，能否重叠这个区别，将导致他们的测量出来的大小也不一样。所以LinearLayout和RelativeLayout等这些具体的ViewGroup重写了onMeasure方法。</p>
+<h2 id="5、Layout过程"><a href="#5、Layout过程" class="headerlink" title="5、Layout过程"></a>5、Layout过程</h2><p>layout的目的是将View按照measure得到的宽高结果放在屏幕上合适的位置，也就是确定每层每个View或ViewGroup的mLeft，mRight，mTop，mBottom这四个坐标值。坐标值确定下来，这个ViewGroup或View的位置就确定下来了，layout的过程就完成了。layout源码：</p>
+<pre><code>public void layout(int l, int t, int r, int b) {
+    if ((mPrivateFlags3 &amp; PFLAG3_MEASURE_NEEDED_BEFORE_LAYOUT) != 0) {
+        onMeasure(mOldWidthMeasureSpec, mOldHeightMeasureSpec);
+        mPrivateFlags3 &amp;= ~PFLAG3_MEASURE_NEEDED_BEFORE_LAYOUT;
+    }
+
+    int oldL = mLeft;
+    int oldT = mTop;
+    int oldB = mBottom;
+    int oldR = mRight;
+
+    boolean changed = isLayoutModeOptical(mParent) ?
+            setOpticalFrame(l, t, r, b) : setFrame(l, t, r, b);
+
+    if (changed || (mPrivateFlags &amp; PFLAG_LAYOUT_REQUIRED) == PFLAG_LAYOUT_REQUIRED) {
+        onLayout(changed, l, t, r, b);
+        mPrivateFlags &amp;= ~PFLAG_LAYOUT_REQUIRED;
+
+        ListenerInfo li = mListenerInfo;
+        if (li != null &amp;&amp; li.mOnLayoutChangeListeners != null) {
+            ArrayList&lt;OnLayoutChangeListener&gt; listenersCopy =
+                    (ArrayList&lt;OnLayoutChangeListener&gt;)li.mOnLayoutChangeListeners.clone();
+            int numListeners = listenersCopy.size();
+            for (int i = 0; i &lt; numListeners; ++i) {
+                listenersCopy.get(i).onLayoutChange(this, l, t, r, b, oldL, oldT, oldR, oldB);
+            }
+        }
+    }
+
+    mPrivateFlags &amp;= ~PFLAG_FORCE_LAYOUT;
+    mPrivateFlags3 |= PFLAG3_IS_LAID_OUT;
+}
+</code></pre><p>layout过程我们需要知道大致这样的一个流程：首先layout调用setFrame方法设定四个顶点的位置，即初始化mLeft，mRight，mTop，mBottom这四个坐标值，这四个值确定以后，这个View或ViewGroup在父容器中的位置也就确定了。接着会调用onLayout方法，这个方法View或ViewGroup没有具体实现。以LinearLayout为例，他的方法调用大致顺序为：layout–&gt;onLayout（父元素确定子元素的位置）–&gt;setChildFrame（子元素调用他所包含的元素的layout方法），这样一层层的传递下去就完成了整个View树的layout的过程。</p>
+<h2 id="6、draw过程"><a href="#6、draw过程" class="headerlink" title="6、draw过程"></a>6、draw过程</h2><p>draw过程相对前两个过程就简单很多了，作用是将View绘制到屏幕上面，View的绘制有如下几个步骤：</p>
+<p>① 绘制背景（background.draw(canvas)）<br>② 绘制自己(onDraw)<br>③ 绘制children(dispatch)<br>④ 绘制装饰(onDrawScrollBars)<br>View的绘制过程传递是通过dispatchDraw来实现的，dispatchDraw会遍历调用所有子元素的draw方法，draw事件就这样一层层传递下去。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/10/13/5-view知识体系（2）—— 从源码角度理解View的事件分发机制/" rel="next" title="view知识体系（2）—— 从源码角度理解View的事件分发机制">
+                <i class="fa fa-chevron-left"></i> view知识体系（2）—— 从源码角度理解View的事件分发机制
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/10/22/7-Android的View动画，帧动画，属性动画全面解析/" rel="prev" title="Android的View动画，帧动画，属性动画全面解析">
+                Android的View动画，帧动画，属性动画全面解析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/myhead.jpg"
+                alt="黄凌霄" />
+            
+              <p class="site-author-name" itemprop="name">黄凌霄</p>
+              <p class="site-description motion-element" itemprop="description">Android App开发从业5年，参与过智慧校园、智能家居、智慧生活，网约车等领域的多个项目的研发工作。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1、测量布局绘制从哪开始"><span class="nav-number">1.</span> <span class="nav-text">1、测量布局绘制从哪开始</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2、什么是MeasureSpec"><span class="nav-number">2.</span> <span class="nav-text">2、什么是MeasureSpec</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3、View的measure过程"><span class="nav-number">3.</span> <span class="nav-text">3、View的measure过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4、ViewGroup的measure过程"><span class="nav-number">4.</span> <span class="nav-text">4、ViewGroup的measure过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5、Layout过程"><span class="nav-number">5.</span> <span class="nav-text">5、Layout过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6、draw过程"><span class="nav-number">6.</span> <span class="nav-text">6、draw过程</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">黄凌霄</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

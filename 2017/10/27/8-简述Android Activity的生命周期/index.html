@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Activity的生命周期是Android最基本和最重要的知识点之一。如果能深入地理解Activity的生命周期，对我们出开发优秀的APP很有帮助，这篇文章就来讲讲这个知识点。 一、生命周期Activity是一个View对象的容器，也是View的事件分发机制的起点。它可以构成APP一个个可见的界面。官方给出Activity的生命周期图是这样的：">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="简述Android Activity的生命周期">
+<meta property="og:url" content="http://yoursite.com/2017/10/27/8-简述Android Activity的生命周期/index.html">
+<meta property="og:site_name" content="黄凌霄的技术专栏">
+<meta property="og:description" content="Activity的生命周期是Android最基本和最重要的知识点之一。如果能深入地理解Activity的生命周期，对我们出开发优秀的APP很有帮助，这篇文章就来讲讲这个知识点。 一、生命周期Activity是一个View对象的容器，也是View的事件分发机制的起点。它可以构成APP一个个可见的界面。官方给出Activity的生命周期图是这样的：">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/img/Acitivity生命周期.png">
+<meta property="og:updated_time" content="2018-05-11T14:34:36.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="简述Android Activity的生命周期">
+<meta name="twitter:description" content="Activity的生命周期是Android最基本和最重要的知识点之一。如果能深入地理解Activity的生命周期，对我们出开发优秀的APP很有帮助，这篇文章就来讲讲这个知识点。 一、生命周期Activity是一个View对象的容器，也是View的事件分发机制的起点。它可以构成APP一个个可见的界面。官方给出Activity的生命周期图是这样的：">
+<meta name="twitter:image" content="http://yoursite.com/img/Acitivity生命周期.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"always","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/10/27/8-简述Android Activity的生命周期/"/>
+
+
+
+
+
+  <title>简述Android Activity的生命周期 | 黄凌霄的技术专栏</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">黄凌霄的技术专栏</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">不积跬步 无以致千里 不积小流 无以成江海</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/27/8-简述Android Activity的生命周期/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="黄凌霄">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myhead.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="黄凌霄的技术专栏">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">简述Android Activity的生命周期</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-27T15:17:41+08:00">
+                2017-10-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Activity的生命周期是Android最基本和最重要的知识点之一。如果能深入地理解Activity的生命周期，对我们出开发优秀的APP很有帮助，这篇文章就来讲讲这个知识点。</p>
+<h2 id="一、生命周期"><a href="#一、生命周期" class="headerlink" title="一、生命周期"></a>一、生命周期</h2><p>Activity是一个View对象的容器，也是View的事件分发机制的起点。它可以构成APP一个个可见的界面。官方给出Activity的生命周期图是这样的：<br><a id="more"></a></p>
+<p>Activity从创建，到被Android回收，Android系统会依次回调以下几个方法：<br><img src="/img/Acitivity生命周期.png" alt="Activity生命周期"></p>
+<h3 id="1、onCreate"><a href="#1、onCreate" class="headerlink" title="1、onCreate()"></a>1、onCreate()</h3><p>Activity正在被创建，这个时候Activity的View是不可见的，在这里我们可以进行一些初始化的工作，如setContentView加载Activity的内容View，或者对控件和变量进行初始化。</p>
+<h3 id="2、onStart"><a href="#2、onStart" class="headerlink" title="2、onStart()"></a>2、onStart()</h3><p>回调这个方法的时候，Activity已经可见了，但是此时还不能和用户交互。从生命周期的流程图我么可以看到，每次Activity被切换为可见状态的时候，都会执行onStart，所以这里不便于进行控件和变量的初始化。</p>
+<h3 id="3、onResume"><a href="#3、onResume" class="headerlink" title="3、onResume()  "></a>3、onResume()  </h3><p>回调这个方法的时候，Activity是可见的，并且可以和用户交互。</p>
+<h3 id="4、onPause"><a href="#4、onPause" class="headerlink" title="4、onPause()"></a>4、onPause()</h3><p>表示Activity进入暂停状态，Activity正在停止，此时Activity是可见的，我们可以在这里进行一些简单的数据存储或者初始化一些变量。</p>
+<h3 id="5、onStop"><a href="#5、onStop" class="headerlink" title="5、onStop()"></a>5、onStop()</h3><p>表示Activity进入停止状态，此时Activity是不可见的。这个时候Activity对象在内存中。</p>
+<h3 id="6、onDestory"><a href="#6、onDestory" class="headerlink" title="6、onDestory()"></a>6、onDestory()</h3><p>Activity被销毁以后调用，此时Activity不可见，并且Activity已经不在内存中了。这里我们释放一些资源。</p>
+<h3 id="7、onRestart"><a href="#7、onRestart" class="headerlink" title="7、onRestart()"></a>7、onRestart()</h3><p>当用户从桌面切换为Activity，或者从后一个Activity切换回来的时候，会出发这个方法。这里一般不做什么操作。</p>
+<h3 id="当进行以下几种情况时的回调方法执行顺序："><a href="#当进行以下几种情况时的回调方法执行顺序：" class="headerlink" title="当进行以下几种情况时的回调方法执行顺序："></a>当进行以下几种情况时的回调方法执行顺序：</h3><p>① Activity正常启动：onCreate()-&gt;onStart()-&gt;onResume()；<br>② Activity正常退出：onPause()-&gt;onStop()-&gt;onDestory()；<br>③ 一个Activity启动另一个Activity: onPause()-&gt;onStop(), 再返回：onRestart()-&gt;onStart()-&gt;onResume()；<br>④ Activity横竖屏切换：onPause()-&gt;onStop()-&gt;onDestory()-&gt;onCreate()-&gt;onStart()-&gt;onResume()<br>⑤ 按back键退出： onPause()-&gt;onStop()-&gt;onDestory()，再进入：onCreate()-&gt;onStart()-&gt;onResume()；<br>⑥ 按home键退出： onPause()-&gt;onStop()，再进入：onRestart()-&gt;onStart()-&gt;onResume()；</p>
+<h2 id="二、onSaveInstanceState-amp-onRestoreInstanceState"><a href="#二、onSaveInstanceState-amp-onRestoreInstanceState" class="headerlink" title="二、onSaveInstanceState() &amp; onRestoreInstanceState()"></a>二、onSaveInstanceState() &amp; onRestoreInstanceState()</h2><p>1、当某个Activity变得容易被系统销毁，而非用户主动销毁时，则会在onPause()或onStop()方法之前回调onSaveInstanceState()，例如：</p>
+<p>① 当用户按下HOME键时。因为当用户按下HOME键，那么这个Activity所在的栈被放入后台，这个后台的栈里的Activity可能会因为内存资源紧张而被回收，所以会执行onSaveInstanceState()，让用户有机会在这里保存界面的状态，如输入框的内容。</p>
+<p>② 长按HOME键，选择运行其他的程序时。<br>③ 按下电源按键（关闭屏幕显示）时。<br>④ 从activity A中启动一个新的activity时。<br>⑤ 屏幕方向切换时，例如从竖屏切换到横屏时</p>
+<p>示例代码如下：</p>
+<pre><code>protected void onSaveInstanceState(Bundle outState){ 
+       super.onSaveInstanceState(outState); 
+       outState.putInt(&quot;key1&quot;, value1); 
+       outState.putString(&quot;key2&quot;, value2); 
+}
+</code></pre><p>3、当某个Activity不是用户主动销毁，并且又返回此Activity的时候，onRestoreInstanceState()会被调用。当要恢复状态的时候可以在onCreate里面执行恢复，也可以在OnRestoreInstanceState执行恢复。</p>
+<p>示例代码如下：</p>
+<pre><code>protected void onCreate(Bundle bundle) { 
+       super.onCreate(bundle); 
+       if (bundle != null) { 
+       } 
+}
+</code></pre><p>或：</p>
+<pre><code>protected void onRestoreInstanceState(BundlesavedInstanceState) { 
+   super.OnRestoreInstanceState(savedInstanceState); 
+   value1 = savedInstanceState.GetInt(&quot;key1&quot;, value1_dafault); 
+   value2 = savedInstanceState.GetString(&quot;key2&quot;, &quot;value2_default&quot;); 
+}
+</code></pre><p>另外如果要保存状态，其实也可以在onPause里面用SharedPreference来保存，在onCreate里面恢复状态。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/10/22/7-Android的View动画，帧动画，属性动画全面解析/" rel="next" title="Android的View动画，帧动画，属性动画全面解析">
+                <i class="fa fa-chevron-left"></i> Android的View动画，帧动画，属性动画全面解析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/11/06/9-Android Service的生命周期笔记/" rel="prev" title="Android Service生命周期笔记">
+                Android Service生命周期笔记 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/myhead.jpg"
+                alt="黄凌霄" />
+            
+              <p class="site-author-name" itemprop="name">黄凌霄</p>
+              <p class="site-description motion-element" itemprop="description">Android App开发从业5年，参与过智慧校园、智能家居、智慧生活，网约车等领域的多个项目的研发工作。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、生命周期"><span class="nav-number">1.</span> <span class="nav-text">一、生命周期</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、onCreate"><span class="nav-number">1.1.</span> <span class="nav-text">1、onCreate()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、onStart"><span class="nav-number">1.2.</span> <span class="nav-text">2、onStart()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3、onResume"><span class="nav-number">1.3.</span> <span class="nav-text">3、onResume()  </span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4、onPause"><span class="nav-number">1.4.</span> <span class="nav-text">4、onPause()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5、onStop"><span class="nav-number">1.5.</span> <span class="nav-text">5、onStop()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6、onDestory"><span class="nav-number">1.6.</span> <span class="nav-text">6、onDestory()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7、onRestart"><span class="nav-number">1.7.</span> <span class="nav-text">7、onRestart()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#当进行以下几种情况时的回调方法执行顺序："><span class="nav-number">1.8.</span> <span class="nav-text">当进行以下几种情况时的回调方法执行顺序：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、onSaveInstanceState-amp-onRestoreInstanceState"><span class="nav-number">2.</span> <span class="nav-text">二、onSaveInstanceState() &amp; onRestoreInstanceState()</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">黄凌霄</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="公司的这个项目开始很久了，这几天稍微不太忙，才开始写这篇文章，总结下Android开发板串口通讯开发的过程，主要是记录以下几个方面：我对什么是Android串口通讯的理解，快速开发串口通讯的一个解决方案，串口App程序调试的方法，以及关于串口通讯代码抽象的几个关键点。因为内容较多，所以分为几个方面来写。以下文中涉及的Android开发板均是在Android 5.1，全志A64核心板环境下测试。">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="App和Android开发板串口通讯的原理和实践">
+<meta property="og:url" content="http://yoursite.com/2017/06/11/1-App和Android开发板串口通讯的原理和实践/index.html">
+<meta property="og:site_name" content="黄凌霄的技术专栏">
+<meta property="og:description" content="公司的这个项目开始很久了，这几天稍微不太忙，才开始写这篇文章，总结下Android开发板串口通讯开发的过程，主要是记录以下几个方面：我对什么是Android串口通讯的理解，快速开发串口通讯的一个解决方案，串口App程序调试的方法，以及关于串口通讯代码抽象的几个关键点。因为内容较多，所以分为几个方面来写。以下文中涉及的Android开发板均是在Android 5.1，全志A64核心板环境下测试。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/img/jni.jpg">
+<meta property="og:image" content="http://yoursite.com/img/resultleft.jpg">
+<meta property="og:updated_time" content="2018-05-11T14:34:36.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="App和Android开发板串口通讯的原理和实践">
+<meta name="twitter:description" content="公司的这个项目开始很久了，这几天稍微不太忙，才开始写这篇文章，总结下Android开发板串口通讯开发的过程，主要是记录以下几个方面：我对什么是Android串口通讯的理解，快速开发串口通讯的一个解决方案，串口App程序调试的方法，以及关于串口通讯代码抽象的几个关键点。因为内容较多，所以分为几个方面来写。以下文中涉及的Android开发板均是在Android 5.1，全志A64核心板环境下测试。">
+<meta name="twitter:image" content="http://yoursite.com/img/jni.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"always","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/06/11/1-App和Android开发板串口通讯的原理和实践/"/>
+
+
+
+
+
+  <title>App和Android开发板串口通讯的原理和实践 | 黄凌霄的技术专栏</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">黄凌霄的技术专栏</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">不积跬步 无以致千里 不积小流 无以成江海</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/06/11/1-App和Android开发板串口通讯的原理和实践/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="黄凌霄">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myhead.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="黄凌霄的技术专栏">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">App和Android开发板串口通讯的原理和实践</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-06-11T10:31:00+08:00">
+                2017-06-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>公司的这个项目开始很久了，这几天稍微不太忙，才开始写这篇文章，总结下Android开发板串口通讯开发的过程，主要是记录以下几个方面：我对什么是Android串口通讯的理解，快速开发串口通讯的一个解决方案，串口App程序调试的方法，以及关于串口通讯代码抽象的几个关键点。因为内容较多，所以分为几个方面来写。以下文中涉及的Android开发板均是在Android 5.1，全志A64核心板环境下测试。</p>
+<ol>
+<li>什么是Android串口</li>
+<li>Android串口通讯原理和我对Android系统HAL层的理解</li>
+<li>3分钟让项目代码获取串口通讯能力</li>
+<li>实现一个发送接收串口数据的工具类<a id="more"></a>
+</li>
+</ol>
+<h2 id="什么是Android串口"><a href="#什么是Android串口" class="headerlink" title="什么是Android串口"></a>什么是Android串口</h2><p>串口是Android系统对外提供的一种接口，接口至少有两个通道，一个负责输入数据，一个负责输出数据。比如可以连接单片机，进行Android系统和单片机的数据交换。</p>
+<h2 id="Android串口通讯原理和我对Android系统HAL层的理解"><a href="#Android串口通讯原理和我对Android系统HAL层的理解" class="headerlink" title="Android串口通讯原理和我对Android系统HAL层的理解"></a>Android串口通讯原理和我对Android系统HAL层的理解</h2><p>从Android OS的整体架构来讲，Android和硬件数据交互，可以先简单的理解为读写一个文件，比如LInux系统读取外部设备信息的时候，首先得到设备所挂载的路径，然后在Java层面实例化为一个File对象，这个File对象Java有一些读写的API供我们直接调用。而串口对于Android系统来说，其实本身也是属于一个硬件设备，所以Android和串口通讯的过程和这个类似：也有一个获取串口设备路径的方法，也需要构造一个SerialPort对象，这个SerialPort对象也有一些读写的API。不同的是这个SerialPort对象读写的API需要我们来写，我们来实现，不过我们可以参考Google官方给出的串口调试工具的实现。</p>
+<p>Android系统本身并没有直接和众多硬件设备交互，如串口，USB，Camera等，而是规定了统一的设备读写和配置的接口。如果不统一接口，Android系统需要针对每一种硬件设备、每一种厂商的硬件设备做判断，调用Linux内核中相应的硬件的读写和配置接口的驱动，并且硬件的厂商的硬件驱动需要放到Adroid的Linux内核中，以供Android调用，这是不可能实现的，因为硬件厂商将硬件驱动放到Linux内核，就必须遵守GPL开源协议将驱动程序公开，由于很多硬件厂商并不愿意将自家的驱动程序公开，于是Google规定了统一的设备读写和配置的接口：上层的应用按照这个接口调用读写配置硬件参数，各家硬件厂商按照这个接口来写驱动程序，这样就大大减少了Android对Linux内核的依赖，而Google只需要公开这个接口的代码即可，这个接口将底层硬件抽象化，屏蔽掉了底层的实现细节，这就是Android系统的HAL层。</p>
+<p>所以Java要和HAL层的C代码接口通讯就需要用到Java的Jni开发协议，这个协议规定了Java调用C代码的方法。关于JNI的开发，我会有专门的文章讲述。具体的通讯过程可以用下图表示：<br><img src="/img/jni.jpg" alt="Android应用层和硬件的通讯过程"><br>APP应用构造出16进制的字节数据，交给JNI层（把数据交给JNI层的方式，简单来说就是定义一个和C方法同名的Java方法，并声明为native，然C代码的方法按照一定的格式写即可），JNI层的代码调用HAL层的读写配置硬件参数的方法，由HAL层和底层的硬件交互。</p>
+<h2 id="3分钟让项目代码获取串口通讯能力"><a href="#3分钟让项目代码获取串口通讯能力" class="headerlink" title="3分钟让项目代码获取串口通讯能力"></a>3分钟让项目代码获取串口通讯能力</h2><p>明白了通讯的原理以后，就可以着手开始开发了，Google在串口通讯这方面有一个Demo供大家参考：android-serialport-api ，下载地址：<a href="http://code.google.com/p/android-serialport-api/，很多Android开发板也内置了这个APP，使用这个APP可以测试开发板的串口是否工作正常。打开这个APP以后需要先配置串口的设备路径，波特率信息。" target="_blank" rel="noopener">http://code.google.com/p/android-serialport-api/，很多Android开发板也内置了这个APP，使用这个APP可以测试开发板的串口是否工作正常。打开这个APP以后需要先配置串口的设备路径，波特率信息。</a></p>
+<p>拿到源码以后，可以看到这个Demo的核心类有两个SerialPort、SerialPortFinder。SerialPort类里面封装了读写串口的API，比如打开串口，关闭串口等。SerialPortFinder封装了获取串口设备路径的方法，如getAllDevice()，返回的是字符串数组。使用路径和波特率实例化SerialPort对象，然后调用读写方法。有了这两个类，我们就没必要重新制造轮子了，下面我讲一下怎么让项目工程快速获取串口通讯能力，然后进行快速开发。</p>
+<p>先看一下项目集成以后的效果：<br><img src="/img/resultleft.jpg" alt="Android应用层和硬件的通讯过程"><br>（1）把相应的文件拷贝到相应的目录。切记android_serialport_api的包名不要改，并且要放到java目录下，不要放在其他包下，因为jni文件里的C文件和这个包名有关。</p>
+<p>（2）修改主moudle下的build.gradle文件。</p>
+<p>在android节点下加入以下代码：</p>
+<pre><code>sourceSets {
+    main {
+        jniLibs.srcDirs = [&apos;libs&apos;]
+    }
+}
+</code></pre><p>在android节点的defaultconfig下加入以下代码：</p>
+<pre><code>ndk {
+
+     moduleName &quot;serial_port&quot;
+
+}
+</code></pre><p>另外需要配置NDK编译工具的路径，没有安装NDK编译工具的，需要先安装。在工程的根目录下的local.properties文件里最低部加入以下代码：</p>
+<p>ndk.dir=E\:\android\assdk\ndk-bundle<br>上面的都完成以后，项目就具有了串口通讯的能力了，可以将项目的首页指引到MainMenu页面，配置串口路径和波特率以后，然后测试没问题以后就可以开始开发了。</p>
+<h2 id="实现一个发送接收串口数据的工具类"><a href="#实现一个发送接收串口数据的工具类" class="headerlink" title="实现一个发送接收串口数据的工具类"></a>实现一个发送接收串口数据的工具类</h2><p>（1）保证SerialPort实例的全局唯一性。</p>
+<p>android_serialport_api包下有个Application类，他是android.app.Application的子类，这里面实例化了SerialPort类，保证了全局只有一个SerialPort类对象，建议自己的Application类直接继承android_serialport_api包下的Application类，以保证全局只有一个SerialPort类实例：</p>
+<pre><code>package android_serialport_api.sample;
+
+import android.content.SharedPreferences;
+import android.text.TextUtils;
+import android.util.Log;
+
+import java.io.File;
+import java.io.IOException;
+import java.security.InvalidParameterException;
+
+import android_serialport_api.SerialPort;
+import android_serialport_api.SerialPortFinder;
+
+public class Application extends android.app.Application {
+
+   public SerialPortFinder mSerialPortFinder = new SerialPortFinder();
+   private SerialPort mSerialPort = null;
+
+   public SerialPort getSerialPort() throws SecurityException, IOException, InvalidParameterException {
+      /* Read serial port parameters */
+      SharedPreferences sp = getSharedPreferences(&quot;你的ApplicationID_preferences&quot;, MODE_PRIVATE);
+      String path = sp.getString(&quot;DEVICE&quot;, &quot;&quot;);
+      int baudrate = Integer.decode(sp.getString(&quot;BAUDRATE&quot;, &quot;-1&quot;));
+
+//当没有配置串口设备路径和波特率的时候，使用缺省的串口设备路径和波特率实例化SerialPort对象
+      if(TextUtils.isEmpty(path)){
+         path = &quot;/dev/ttyS3&quot;;
+      }
+
+      if(-1==baudrate){
+         baudrate = 9600;
+      }
+
+      if ( (path.length() == 0) || (baudrate == -1)) {
+         throw new InvalidParameterException();
+      }
+
+      Log.i(&quot;Application&quot;,&quot;串口路径:&quot;+path);
+      Log.i(&quot;Application&quot;,&quot;波特率:&quot;+baudrate);
+
+      /* Open the serial port */
+      mSerialPort = new SerialPort(new File(path), baudrate, 0);
+
+      return mSerialPort;
+   }
+
+   public void closeSerialPort() {
+      if (mSerialPort != null) {
+         mSerialPort.close();
+         mSerialPort = null;
+      }
+   }
+}
+</code></pre><p>（2）获取SerialPort实例的输入流、输出流</p>
+<p>通过上面的分析我们知道，串口设备对象的读写API主要封装在SerialPort类里面，代码如下：</p>
+<pre><code>package android_serialport_api;
+
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+public class SerialPort {
+
+   private static final String TAG = &quot;SerialPort&quot;;
+
+   /*
+    * Do not remove or rename the field mFd: it is used by native method close();
+    */
+   private FileDescriptor mFd;
+   private FileInputStream mFileInputStream;
+   private FileOutputStream mFileOutputStream;
+
+   public SerialPort(File device, int baudrate, int flags) throws SecurityException, IOException {
+
+      /* Check access permission */
+      if (!device.canRead() || !device.canWrite()) {
+         try {
+            /* Missing read/write permission, trying to chmod the file */
+            Process su;
+            su = Runtime.getRuntime().exec(&quot;/system/bin/su&quot;);
+            String cmd = &quot;chmod 666 &quot; + device.getAbsolutePath() + &quot;\n&quot;
+                  + &quot;exit\n&quot;;
+            su.getOutputStream().write(cmd.getBytes());
+            if ((su.waitFor() != 0) || !device.canRead()
+                  || !device.canWrite()) {
+               throw new SecurityException();
+            }
+         } catch (Exception e) {
+            e.printStackTrace();
+            throw new SecurityException();
+         }
+
+      }
+
+      mFd = open(device.getAbsolutePath(), baudrate, flags);
+      if (mFd == null) {
+         throw new IOException();
+      }
+      mFileInputStream = new FileInputStream(mFd);
+      mFileOutputStream = new FileOutputStream(mFd);
+
+   }
+
+   // Getters and setters
+   public InputStream getInputStream() {
+      return mFileInputStream;
+   }
+
+   public OutputStream getOutputStream() {
+      return mFileOutputStream;
+   }
+
+   // JNI
+   private native static FileDescriptor open(String path, int baudrate, int flags);
+   public native void close();
+   static {
+      System.loadLibrary(&quot;serial_port&quot;);
+   }
+}
+</code></pre><p>串口设备的读写数据的过程是这样的，首先打开串口（这个在实例化SerialPort的时候已经调用了，我们不用手动调用）。然后在发送数据的地方调用SerialPort对象的getOutputStream（）方法得到输出流对象，接下来就是我们熟悉的调用流对象的write方法，传入字节数组，将数据发送出去。接收数据同样调用SerialPort对象的getInputStream（）方法得到输入流对象，然后调用流对象的read（bytearr）方法，参数bytearr是一个空的字节数组，read方法可以送输入流里读bytearr长度的字节数组放入到bytearr，如果没有就阻塞线程一直等待，所以读取数据需要放入到一个新的线程里，通过while循环不断的去读取数据。</p>
+<p>这是我封装的一个串口读写数据的一个核心类供大家参考：</p>
+<pre><code>package serialappcore.engine;
+
+import android.content.Context;
+import android.util.Log;
+
+
+import com.hfhsys.qnhy.common.SysApp;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.InvalidParameterException;
+
+import android_serialport_api.SerialPort;
+import serialappcore.util.ByteTools;
+import serialappcore.util.Logger;
+
+/**
+ * Created by hhh on 2017/3/30.
+ */
+
+public class SimpleEngine implements Engine{
+
+    public final String TAG = &quot;SimpleEngine&quot;;
+
+    //串口api
+    private SerialPort mSerialPort;
+
+    private OutputStream mOutputStream;
+    private InputStream mInputStream;
+
+    private boolean isSerialOpened = false;
+
+
+    Context mContext;
+
+    public SimpleEngine() {
+
+    }
+
+
+    /**
+     * 初始化SerialPort对象的输入流、输出流
+     * @return
+     * @throws SecurityException
+     * @throws IOException
+     * @throws InvalidParameterException
+     */
+    public boolean open() throws SecurityException, IOException, InvalidParameterException {
+
+        try{
+
+            mSerialPort = SysApp.getInstance().getSerialPort();
+            mOutputStream = mSerialPort.getOutputStream();
+            mInputStream = mSerialPort.getInputStream();
+            isSerialOpened = true;
+            receiveDatas();
+            return true;
+        }catch (SecurityException e){
+            isSerialOpened = false;
+            Log.i(TAG,&quot;SecurityException异常，打开串口失败…&quot;);
+            return false;
+        }catch (IOException e){
+            isSerialOpened = false;
+            Log.i(TAG,&quot;IOException异常，打开串口失败…&quot;);
+            return false;
+        }catch (InvalidParameterException e){
+            isSerialOpened = false;
+            Log.i(TAG,&quot;InvalidParameterException异常，打开串口失败…&quot;);
+            return false;
+        }catch (Exception e){
+            isSerialOpened = false;
+            Log.i(TAG,&quot;打开串口出现未知异常信息，打开串口失败…：&quot;+e.getMessage());
+            return false;
+        }
+
+    }
+
+    /**
+     * 关闭串口
+     */
+    public void close() {
+        if (mSerialPort != null) {
+            mSerialPort.close();
+            mSerialPort = null;
+        }
+    }
+
+
+    /**
+     * 判断串口是否可用
+     * @return
+     */
+    public boolean isSerialEnabled(){
+        if (null==mSerialPort || !isSerialOpened) {
+            return false;
+        }else{
+            return true;
+        }
+
+    }
+
+    /**
+     * 发送字节数据
+     * @param bOutArray
+     * @return
+     */
+    public boolean send(byte[] bOutArray) {
+        if(null!=mOutputStream){
+            try {
+                mOutputStream.write(bOutArray);
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }else{
+            return false;
+        }
+
+    }
+
+
+    /**
+     * 接收数据
+     */
+    private void receiveDatas() {
+
+
+        Log.i(TAG, &quot;receiveDatas()已经执行&quot;);
+        final byte[] b = new byte[1];
+
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                while (true) {
+                    if(isSerialEnabled() &amp;&amp; null!=mInputStream){
+//                        Log.i(TAG, &quot;SimpleEngine　正在接收数据…&quot;);
+//                        if (mInputStream == null) {
+//                            return;
+//                        }
+                        try {
+                            mInputStream.read(b);
+//                            Log.i(TAG, &quot;串口发现数据：&quot;+ByteTools.byteArr2hexStr(b));
+                            doReadChangeData(b);
+                        } catch (IOException e) {
+//                            Log.i(TAG, &quot;读数据的过程中发生异常…&quot;);
+                        }
+                    }
+
+
+                }
+            }
+        }).start();
+
+
+    }
+
+
+    /**
+     * 读取到变化的数据
+     * @param value
+     */
+    protected void doReadChangeData(byte[] value){}
+
+}
+</code></pre>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/06/11/2-Android4.4以上版本读写USB OTG闪存/" rel="prev" title="Android4.4以上版本读写USB OTG闪存">
+                Android4.4以上版本读写USB OTG闪存 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/myhead.jpg"
+                alt="黄凌霄" />
+            
+              <p class="site-author-name" itemprop="name">黄凌霄</p>
+              <p class="site-description motion-element" itemprop="description">Android App开发从业5年，参与过智慧校园、智能家居、智慧生活，网约车等领域的多个项目的研发工作。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是Android串口"><span class="nav-number">1.</span> <span class="nav-text">什么是Android串口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Android串口通讯原理和我对Android系统HAL层的理解"><span class="nav-number">2.</span> <span class="nav-text">Android串口通讯原理和我对Android系统HAL层的理解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3分钟让项目代码获取串口通讯能力"><span class="nav-number">3.</span> <span class="nav-text">3分钟让项目代码获取串口通讯能力</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现一个发送接收串口数据的工具类"><span class="nav-number">4.</span> <span class="nav-text">实现一个发送接收串口数据的工具类</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">黄凌霄</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

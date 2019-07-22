@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="看过很多类似这样的文章去分享这三者的区别，今天我也在这里谈下我的理解。在了解这三个单位之前，首先了解下什么是像素（px）。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android开发中px，dp，dpi的含义和区别以及屏幕适配基础">
+<meta property="og:url" content="http://yoursite.com/2017/06/21/3-Android开发中px，dp，dpi的含义和区别以及屏幕适配基础/index.html">
+<meta property="og:site_name" content="黄凌霄的技术专栏">
+<meta property="og:description" content="看过很多类似这样的文章去分享这三者的区别，今天我也在这里谈下我的理解。在了解这三个单位之前，首先了解下什么是像素（px）。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-05-11T14:34:36.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android开发中px，dp，dpi的含义和区别以及屏幕适配基础">
+<meta name="twitter:description" content="看过很多类似这样的文章去分享这三者的区别，今天我也在这里谈下我的理解。在了解这三个单位之前，首先了解下什么是像素（px）。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"always","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/06/21/3-Android开发中px，dp，dpi的含义和区别以及屏幕适配基础/"/>
+
+
+
+
+
+  <title>Android开发中px，dp，dpi的含义和区别以及屏幕适配基础 | 黄凌霄的技术专栏</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">黄凌霄的技术专栏</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">不积跬步 无以致千里 不积小流 无以成江海</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/06/21/3-Android开发中px，dp，dpi的含义和区别以及屏幕适配基础/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="黄凌霄">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myhead.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="黄凌霄的技术专栏">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android开发中px，dp，dpi的含义和区别以及屏幕适配基础</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-06-21T14:50:59+08:00">
+                2017-06-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>看过很多类似这样的文章去分享这三者的区别，今天我也在这里谈下我的理解。在了解这三个单位之前，首先了解下什么是像素（px）。<br> <a id="more"></a></p>
+<h2 id="什么是像素"><a href="#什么是像素" class="headerlink" title="什么是像素"></a>什么是像素</h2><p>我们经常看到过一些大型的舞蹈，很多人排列整齐，有序的站着，每个人手中都拿着一个带颜色的扇子或者气球，这些演员可以通过手中的不同颜色的气球，共同组成一个文字或者图像。这里每个气球其实就是一个像素（px），一次可以展示一种颜色。所以拿气球的人越多，可以组成的图像和文字就越逼真，也即像素越多，越能展示更多的细节，图像显示的质量越高。我们平常看到的手机的参数比如1280 x 720 ，意思就是长宽分别有1280个和720个像素点，每个像素点负责展示一个颜色。像素个数在一定程度上可以反映手机显示的质量，为什么只是一定程度上，而不是决定性的作用呢？因为显示的质量不仅仅和像素个数有关系，还和dpi有关系。</p>
+<h2 id="PPI或DPI"><a href="#PPI或DPI" class="headerlink" title="PPI或DPI"></a>PPI或DPI</h2><p>ppi也就是每英寸像素（Pixels Per Inch）个数，又称为dpi（Dots Per Inch），他是由屏幕对角线的像素点的个数除以屏幕对角线的长度得到的。也就是每英寸的像素个数越多 ，dpi越高。dpi对于屏幕的显示的质量是有很大关系的，往往dpi越高，每英寸展示出的图像细节越多，显示质量越高。</p>
+<p>比如屏幕对角线的像素个数是880个像素点，屏幕对角线尺寸是5.5英寸，所以这个屏幕的dpi是880 ÷ 5.5 = 160dpi；如果对角线的像素个数是1320个，那么这个屏幕的dpi是1320 ÷ 5.5 = 240dpi，很显然240dpi的屏幕要比160dpi的屏幕显示的质量要好。因为它在每个英寸的范围内像素个数更多，能展示更多的细节。所以看一个手机的显示质量不仅仅看像素个数，还要参照ppi（dpi）。</p>
+<h2 id="DP"><a href="#DP" class="headerlink" title="DP"></a>DP</h2><p>我们都知道，目前Android手机的碎片化很严重，屏幕的种类非常多。如果我们在开发的过程中用像素的个数来表示控件的高度，比如高度是200px，那么发生的情况就是这个控件在有的手机上可能占用半屏的空间，在有的手机上占用屏幕1/3的空间，这显然是不可行的；用英寸表示更不行。所以需要有一个单位，这个单位可以表示一个控件的尺寸，让这个控件的显示效果在不同的手机上显示的效果接近一致，这就是dp或者 dip (Density-Independent pixel)。</p>
+<p>dp是一个在开发过程中经常用到的单位，可以使得开发者设置的长度能够根据不同屏幕dpi获得不同的像素(px)数量，从而接近统一的显示效果。Google规定：如果将一个控件的高度设置为1dp，那么在160dpi的屏幕下，这个控件的高度用1px表示。由此可以得出在240dpi下，1dp为  1 x （240÷160) = 1.5px，2dp为2 x （240÷160） = 3px，即在240dpi的屏幕下，2dp用3个像素表示。</p>
+<p>所以用m dpi的屏幕表示 a dp用的像素个数是 a x （m÷160）；</p>
+<h2 id="DP和英寸的关系"><a href="#DP和英寸的关系" class="headerlink" title="DP和英寸的关系"></a>DP和英寸的关系</h2><p>如果我们想在不同的dpi屏幕的手机表示160dp，那么都分别用到多少像素表示呢？看下表：</p>
+<p>分辨率    每英寸像素个数    要表示的dp值    要表示的dp值对应的像素个数</p>
+<p>320 x 480    160dpi          160dp             160dp x 160dpi/160dpi = 160px<br>480 x 800    240dpi          160dp             160dp x 240dpi/160dpi = 240px<br>1080 x 1920    360dpi          160dp             160dp x 360dpi/160dpi = 360px</p>
+<p>可以看到，在不同的dpi屏幕的手机上表示160dp，所用的像素个数和dpi相同即和每英寸用到的像素个数相同，所以得出的结论是：无论任何dpi的屏幕，表示160dp都是一英寸的长度，即：一英寸是160dp。</p>
+<h2 id="屏幕适配"><a href="#屏幕适配" class="headerlink" title="屏幕适配"></a>屏幕适配</h2><p>（1）图标大小按比例缩放制作。由上面的分析，可以知道如果将一个控件的高度设置为1dp，那么：<br>在120dpi下，1dp用120÷160 = 0.75px表示；<br>在160dpi下，1dp用160÷160 = 1px表示；<br>在240dpi下，1dp用240÷160 = 1.5px表示；<br>在320dpi下，1dp用320÷160 = 2px表示。<br>而一个px的长度是确定的，所以同样表示1dp的长度，不同dpi屏幕上用的长度也是不一样的，这个长度的比例和用到的像素个数有关。</p>
+<p>即在120dpi、160dpi、240dpi、320dpi，需要用到的图标元素的尺寸比例为 0.75 : 1 : 1.5 : 2。按照这个比例去分别做图标，可以在大部分的手机上有接近一致的效果。</p>
+<p>（2）在开发过程中，除文字控件外，尽量使用dp来表示控件的尺寸。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/06/11/2-Android4.4以上版本读写USB OTG闪存/" rel="next" title="Android4.4以上版本读写USB OTG闪存">
+                <i class="fa fa-chevron-left"></i> Android4.4以上版本读写USB OTG闪存
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/10/10/4-view知识体系（1）—— View的基础知识以及View滑动的几种方式/" rel="prev" title="view知识体系（1）—— View的基础知识以及View滑动的几种方式">
+                view知识体系（1）—— View的基础知识以及View滑动的几种方式 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/myhead.jpg"
+                alt="黄凌霄" />
+            
+              <p class="site-author-name" itemprop="name">黄凌霄</p>
+              <p class="site-description motion-element" itemprop="description">Android App开发从业5年，参与过智慧校园、智能家居、智慧生活，网约车等领域的多个项目的研发工作。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是像素"><span class="nav-number">1.</span> <span class="nav-text">什么是像素</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PPI或DPI"><span class="nav-number">2.</span> <span class="nav-text">PPI或DPI</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DP"><span class="nav-number">3.</span> <span class="nav-text">DP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DP和英寸的关系"><span class="nav-number">4.</span> <span class="nav-text">DP和英寸的关系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#屏幕适配"><span class="nav-number">5.</span> <span class="nav-text">屏幕适配</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">黄凌霄</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

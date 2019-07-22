@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="我们知道要想做出复杂的或酷炫的UI效果，除了要了解 View的事件分发，View的滑动以及弹性滑动，View绘制流程以外，还需要了解Android的动画。Android的动画按照作用的对象可以分为以下几类：  View动画。作用于View。实际上是不断的对View对象做平移，缩放，旋转，透明度的变换，从而产生动画效果。View动画支持自定义； 帧动画。作用于一张张连续的图片，从而产生动画效果，当然">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android的View动画，帧动画，属性动画全面解析">
+<meta property="og:url" content="http://yoursite.com/2017/10/22/7-Android的View动画，帧动画，属性动画全面解析/index.html">
+<meta property="og:site_name" content="黄凌霄的技术专栏">
+<meta property="og:description" content="我们知道要想做出复杂的或酷炫的UI效果，除了要了解 View的事件分发，View的滑动以及弹性滑动，View绘制流程以外，还需要了解Android的动画。Android的动画按照作用的对象可以分为以下几类：  View动画。作用于View。实际上是不断的对View对象做平移，缩放，旋转，透明度的变换，从而产生动画效果。View动画支持自定义； 帧动画。作用于一张张连续的图片，从而产生动画效果，当然">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-05-11T14:34:36.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android的View动画，帧动画，属性动画全面解析">
+<meta name="twitter:description" content="我们知道要想做出复杂的或酷炫的UI效果，除了要了解 View的事件分发，View的滑动以及弹性滑动，View绘制流程以外，还需要了解Android的动画。Android的动画按照作用的对象可以分为以下几类：  View动画。作用于View。实际上是不断的对View对象做平移，缩放，旋转，透明度的变换，从而产生动画效果。View动画支持自定义； 帧动画。作用于一张张连续的图片，从而产生动画效果，当然">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"always","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/10/22/7-Android的View动画，帧动画，属性动画全面解析/"/>
+
+
+
+
+
+  <title>Android的View动画，帧动画，属性动画全面解析 | 黄凌霄的技术专栏</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">黄凌霄的技术专栏</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">不积跬步 无以致千里 不积小流 无以成江海</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/22/7-Android的View动画，帧动画，属性动画全面解析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="黄凌霄">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myhead.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="黄凌霄的技术专栏">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android的View动画，帧动画，属性动画全面解析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-22T15:17:41+08:00">
+                2017-10-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>我们知道要想做出复杂的或酷炫的UI效果，除了要了解 View的事件分发，View的滑动以及弹性滑动，View绘制流程以外，还需要了解Android的动画。Android的动画按照作用的对象可以分为以下几类：</p>
+<ol>
+<li>View动画。作用于View。实际上是不断的对View对象做平移，缩放，旋转，透明度的变换，从而产生动画效果。View动画支持自定义；</li>
+<li>帧动画。作用于一张张连续的图片，从而产生动画效果，当然如果图片过大会产生OOM；</li>
+<li>属性动画。作用于任何对象甚至没有对象，即通过不断的改变对象的属性来产生动画效果。<a id="more"></a>
+接下来我将分别介绍这几种动画以及他们详细的使用方法。</li>
+</ol>
+<h2 id="一、View动画"><a href="#一、View动画" class="headerlink" title="一、View动画"></a>一、View动画</h2><p>也叫补件动画。View动画可以采用XML来定义，也可以通过代码来创建。建议采用xml的方式，因为XML格式的动画可读性更高。动画描述文件放在res/anim文件夹下。</p>
+<p>View动画的四种变换效果对应着Animation的4个子类：TranslationAnimation，ScaleAnimation，RotateAnimation，AlphaAnimation，他们分别是平移，缩放，旋转，透明度这四种变换。</p>
+<p>1.1 View动画描述文件的固定语法：</p>
+<pre><code>&lt;set xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+     android:interpolator=&quot;@android:anim/accelerate_interpolator&quot;
+     android:shareInterpolator=&quot;true&quot; &gt;
+     &lt;translate
+        android:fromXDelta=&quot;float&quot;
+        android:toXDelta=&quot;float&quot;
+        android:fromYDelta=&quot;float&quot;
+        android:toYDelta=&quot;float&quot; /&gt;
+     &lt;rotate
+        android:fromDegrees=&quot;float&quot;
+        android:toDegrees=&quot;float&quot;
+        android:pivotX=&quot;float&quot;
+        android:pivotY=&quot;float&quot; /&gt;
+     &lt;alpha
+        android:fromAlpha=&quot;float&quot;
+        android:toAlpha=&quot;float&quot; /&gt;
+     &lt;scale
+        android:fromXScale=&quot;float&quot;
+        android:toXScale=&quot;float&quot;
+        android:fromYScale=&quot;float&quot;
+        android:toYScale=&quot;float&quot;
+        android:pivotX=&quot;float&quot;
+        android:pivotY=&quot;float&quot; /&gt;
+
+     &lt;set&gt;
+       ...
+     &lt;/set&gt;
+&lt;/set&gt;
+</code></pre><p><set>标签是动画集合，嵌套其他动画或动画集合。<translate>即平移，<rotate>即旋转，<alpha>即透明度，<scale>即缩放，变大变小。</scale></alpha></rotate></translate></set></p>
+<p>1.2 标签说明：</p>
+<p>1.2.1 标签公共属性：</p>
+<p><set>，<translate>，<rotate>，<alpha>，<scale>这些标签都可以配置的属性有：</scale></alpha></rotate></translate></set></p>
+<p>android:interpolator：表示这个动画所采用的插值器，插值器控制动画的播放速度。如加速减速。不指定的话默认为@android:anim/accelerate_decelerate_interpolator，也就是加速减速插值器，先加速再减速。默认的还有accelerate_interpolator，加速插值器，decelerate_interpolator减速插值器等。</p>
+<p>android:duration：表示这个动画的实际播放时间。</p>
+<p>android:startOffset：延迟开始播放时间，xml文件定义的动画默认是同时播放的，但是Android没有提供一个属性配置播放顺序，我们可以利用这个属性达到顺序播放的效果。android:startOffset的值应该至少要大于他前面动画的duration和startOffset的和，才不会出现动画播放重叠。</p>
+<p>android:fillAfter：动画结束之后是否保持动画的最终状态；true，表示保持动画的最终状态</p>
+<p>1.2.2  <set>标签</set></p>
+<p><set>标签即动画集合，它可以包含其他动画动画标签或动画集合标签。它有以下几个属性：</set></p>
+<p>android:shareInterpolator：动画集合是否共享<set>标签中的插值器或默认插值器。如果android:shareInterpolator为true，并且<set>标签中的某个动画又没有指定插值器的话，将使用<set>标签中的插值器或默认插值器。</set></set></set></p>
+<p>1.2.3  <translate>标签</translate></p>
+<p><translate>标签表示平移动画，他有以下几个属性：</translate></p>
+<p>android:fromXDelta，android:fromYDelta：这两个值表示平移起始点的X和Y坐标；<br>android:toXDelta，android:toXDelta：这两个值表示平移结束点的X和Y坐标。</p>
+<p>要注意这两个起始点和结束点的坐标参考系是以每次平移结束后，View内容左上角为0点的参考系。如果首次平移，那坐标原点就是View的原始位置左上角坐标。View的原始位置也就是页面绘制完成时，没有开始过动画时的位置。</p>
+<p>如果View第一次平移从（0,0）到（1000,1000），则再次平移如果想让其从（1000,1000）位置的开始的话，则fromXDelta，fromYDelta需要指定为（0,0）。</p>
+<p>1.2.4 <alpha>标签</alpha></p>
+<p><alpha>标签表示透明度动画，具有起始透明度和结束透明度两个属性。</alpha></p>
+<p>android:fromAlpha：透明度的起始值，如0，表示全透明。</p>
+<p>android:toAlpha：透明度结束值，如1，表示不透明。</p>
+<p>1.2.5 <scale>标签</scale></p>
+<p><scale>标签表示缩放动画，可以使View放大或缩小。它具有起始缩放的水平和竖直方向的值，结束缩放的水平和竖直方向的值，以及缩放的轴点坐标这些属性。</scale></p>
+<p>android:fromXScale，android:fromYScale：水平方向和竖直方向缩放的起始值，如0.5，表示缩放开始时，水平方向和竖直方向从原宽度和高度的一半开始。</p>
+<p>android:toXScale，android:toYScale：水平方向和竖直方向缩放的结束值，如2，表示缩放结束时，水平方向和竖直方向是原宽度和高度的两倍。</p>
+<p>android:pivotX，android:pivotY：缩放轴点坐标，如果不指定，则默认轴点为View的左上角。pivotX/Y可以取坐标数值也可以取百分比。例如取pivotX/Y = 100的时候，表示缩放轴点的坐标在X和Y方向距离坐标原点100px，坐标原点为View的左上角；当取pivotX/Y =50%的时候，表示缩放轴点的坐标在X和Y方向距离坐标原点getWidth * 50%，即View的中心。</p>
+<p>举个例子：fromXScale和fromYScale都指定为0.5，toXScale和toYScale指定为1。如果缩放轴点指定为右边界中心点，则水平方向会向左缩放，上下缩放不变；如果缩放轴点指定为上边界中心点，则竖直方向会向下缩放，水平缩放不变；如果指定缩放轴点为左上角则会向右下方缩放。</p>
+<p>1.2.6 <rotate>标签</rotate></p>
+<p><rotate>标签表示旋转动画，旋转动画具有旋转开始角度，结束角度，旋转轴坐标这三个属性。</rotate></p>
+<p>android:fromDegrees：旋转开始角度，比如0；</p>
+<p>android:toDegrees：旋转结束角度，比如90，180。</p>
+<p>android:pivotX，android:pivotY：旋转轴点坐标，如果不指定，则默认轴点为View的左上角。其他特性和<scale>标签的轴点一致。即也可以按照数值和百分比的方式指定轴点。</scale></p>
+<p>1.3 View动画的使用场景</p>
+<p>1.3.1 应用到View或ViewGroup：</p>
+<p>对于View来说可以使用XML创建的</p>
+<pre><code>Button btn = (Button)findViewById(R.id.btn_testanim1);
+Animation animation = AnimationUtils.loadAnimation(this,R.anim.testanim1);
+btn.startAnimation(animation);
+</code></pre><p>对于View来说也可以使用代码创建的：</p>
+<pre><code>Animation animation = new AlphaAnimation(0.1f, 1.0f); 
+animation.setDuration(2000); 
+imageView.setAnimation(animation);
+</code></pre><p>1.3.2 应用到LayoutAnimation</p>
+<p>如果要对一组控件使用一样的动画的话，可以使用LayoutAnimation动画。LayoutAnimation动画可以对一组控件实现动画。它有XML和代码两种描述方式。</p>
+<p>1.3.2.1 XML文件描述</p>
+<pre><code>&lt;layoutAnimation 
+xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; 
+android:delay=&quot;30%&quot; 
+android:animationOrder=&quot;reverse&quot; 
+android:animation=&quot;@anim/slide_right&quot;/&gt;
+</code></pre><p>android:animationOrder：表示动画的播放顺序，有三个取值normal(顺序)、reverse(反序)、random(随机)。<br>android:animation：子控件所要播放的动画，可以使用第一部分介绍的View动画来定义。</p>
+<p>android:delay：表示动画播放的延时，既可以是百分比30%，也可以是float小数0.5。如果这里的delay为0.5，android:animation指定的子元素的入场动画的duration为300ms，则表示每个子元素延迟播放动画的时间为：300 <em> 0.5 </em> （它前面的子元素的个数+1）。例如一个ListView使用了这个动画的话，则第一个元素的将延迟300 <em> 0.5 </em> （0+1）= 150ms开始播放动画，第二个元素的动画延迟300ms开始播放动画，以此类推。</p>
+<p>然后在布局文件中配置：</p>
+<pre><code>android:layoutAnimation=&quot;@anim/list_anim_layout&quot;
+</code></pre><p>或者在代码中加载：</p>
+<pre><code>AnimationUtils.loadLayoutAnimation(context, R.anim.list_anim_layout)
+</code></pre><p>布局在加载的时候，将自动播放这个LayoutAnimation：</p>
+<p>1.3.2.2 代码方式描述</p>
+<pre><code>//加载一个View动画 
+Animation animation=AnimationUtils.loadAnimation(this, R.anim.slide_right); //得到一个LayoutAnimationController对象； 
+LayoutAnimationController controller = new LayoutAnimationController(animation); 
+controller.setOrder(LayoutAnimationController.ORDER_REVERSE); //设置子元素的出场顺序 
+controller.setDelay(0.3); //设置子元素延迟开始播放动画的时间； 
+listView.setLayoutAnimation(controller);//为ListView设置LayoutAnimationController属性； 
+listView.startLayoutAnimation();
+</code></pre><p>1.3.3 应用到Activity的切换：</p>
+<p>后续会补上</p>
+<h2 id="二、帧动画"><a href="#二、帧动画" class="headerlink" title="二、帧动画"></a>二、帧动画</h2><p>帧动画比较简单，就是通过XML文件定义一组图片，然后播放。实现类是AnimationDrawable。定义帧动画的XML文件格式如下：</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt; 
+&lt;animation-list 
+     xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; 
+     android:oneshot=&quot;true&quot; &gt; 
+       &lt;item android:drawable=&quot;@drawable/icon6&quot; android:duration=&quot;150&quot;&gt;&lt;/item&gt; 
+       &lt;item android:drawable=&quot;@drawable/icon5&quot; android:duration=&quot;150&quot;&gt;&lt;/item&gt; 
+       &lt;item android:drawable=&quot;@drawable/icon4&quot; android:duration=&quot;150&quot;&gt;&lt;/item&gt; 
+       &lt;item android:drawable=&quot;@drawable/icon3&quot; android:duration=&quot;150&quot;&gt;&lt;/item&gt; 
+       &lt;item android:drawable=&quot;@drawable/icon2&quot; android:duration=&quot;150&quot;&gt;&lt;/item&gt; 
+       &lt;item android:drawable=&quot;@drawable/icon1&quot; android:duration=&quot;150&quot;&gt;&lt;/item&gt; 
+&lt;/animation-list&gt;
+</code></pre><p>android:oneshot表示是否只展示一遍，true的话只播放一遍，false则会循环播放。</p>
+<p>代码中使用帧动画：</p>
+<pre><code>Button btn = (Button)findViewById(R.id.btn_testanim1);
+btn.setBackgroundResource(R.drawable.frame_animation);
+AnimationDrawable animationDrawable = (AnimationDrawable) btn.getBackground();
+animationDrawable.start();
+</code></pre><p>注意这种方式如果图片过大的话，会引起OOM。</p>
+<h2 id="三、属性动画"><a href="#三、属性动画" class="headerlink" title="三、属性动画"></a>三、属性动画</h2><p>持续更新中……</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/10/17/6-view知识体系（3）—— 浅析View的绘制流程/" rel="next" title="view知识体系（3）—— 浅析View的绘制流程">
+                <i class="fa fa-chevron-left"></i> view知识体系（3）—— 浅析View的绘制流程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/10/27/8-简述Android Activity的生命周期/" rel="prev" title="简述Android Activity的生命周期">
+                简述Android Activity的生命周期 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/myhead.jpg"
+                alt="黄凌霄" />
+            
+              <p class="site-author-name" itemprop="name">黄凌霄</p>
+              <p class="site-description motion-element" itemprop="description">Android App开发从业5年，参与过智慧校园、智能家居、智慧生活，网约车等领域的多个项目的研发工作。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、View动画"><span class="nav-number">1.</span> <span class="nav-text">一、View动画</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、帧动画"><span class="nav-number">2.</span> <span class="nav-text">二、帧动画</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、属性动画"><span class="nav-number">3.</span> <span class="nav-text">三、属性动画</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">黄凌霄</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

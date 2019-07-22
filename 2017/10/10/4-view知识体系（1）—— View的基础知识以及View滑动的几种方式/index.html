@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Android的View是一个知识体系，他包含了View的基础知识，如View的一些基础知识如坐标位置参数等，View的滑动，View的触摸事件分发机制，View的绘制等。本篇文章主要是介绍View的基础知识，将从以下几点开始：  View的位置参数  View的滑动  View的弹性滑动">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="view知识体系（1）—— View的基础知识以及View滑动的几种方式">
+<meta property="og:url" content="http://yoursite.com/2017/10/10/4-view知识体系（1）—— View的基础知识以及View滑动的几种方式/index.html">
+<meta property="og:site_name" content="黄凌霄的技术专栏">
+<meta property="og:description" content="Android的View是一个知识体系，他包含了View的基础知识，如View的一些基础知识如坐标位置参数等，View的滑动，View的触摸事件分发机制，View的绘制等。本篇文章主要是介绍View的基础知识，将从以下几点开始：  View的位置参数  View的滑动  View的弹性滑动">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/img/android屏幕坐标参考图.jpg">
+<meta property="og:updated_time" content="2018-05-11T14:34:36.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="view知识体系（1）—— View的基础知识以及View滑动的几种方式">
+<meta name="twitter:description" content="Android的View是一个知识体系，他包含了View的基础知识，如View的一些基础知识如坐标位置参数等，View的滑动，View的触摸事件分发机制，View的绘制等。本篇文章主要是介绍View的基础知识，将从以下几点开始：  View的位置参数  View的滑动  View的弹性滑动">
+<meta name="twitter:image" content="http://yoursite.com/img/android屏幕坐标参考图.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"always","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/10/10/4-view知识体系（1）—— View的基础知识以及View滑动的几种方式/"/>
+
+
+
+
+
+  <title>view知识体系（1）—— View的基础知识以及View滑动的几种方式 | 黄凌霄的技术专栏</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">黄凌霄的技术专栏</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">不积跬步 无以致千里 不积小流 无以成江海</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/10/4-view知识体系（1）—— View的基础知识以及View滑动的几种方式/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="黄凌霄">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myhead.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="黄凌霄的技术专栏">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">view知识体系（1）—— View的基础知识以及View滑动的几种方式</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-10T14:57:51+08:00">
+                2017-10-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Android的View是一个知识体系，他包含了View的基础知识，如View的一些基础知识如坐标位置参数等，View的滑动，View的触摸事件分发机制，View的绘制等。本篇文章主要是介绍View的基础知识，将从以下几点开始：</p>
+<ol>
+<li>View的位置参数 </li>
+<li>View的滑动 </li>
+<li>View的弹性滑动<a id="more"></a>
+</li>
+</ol>
+<h2 id="一、View位置参数"><a href="#一、View位置参数" class="headerlink" title="一、View位置参数"></a>一、View位置参数</h2><p>如下图所示：</p>
+<p><img src="/img/android屏幕坐标参考图.jpg" alt="AndroidEs屏幕坐标参考"></p>
+<p>1、 View的原始坐标信息有以下几个参数，这几个参数都有相应的get和set方法：</p>
+<p>getLeft()：这个View的左边界到父View的左边界的距离<br>getTop()：这个View的顶部到父View顶部的距离<br>getRight()：这个View的右边界到父View的左边界的距离<br>getBottom()：这个View的底部到父View的顶部的距离</p>
+<p>getWidth()：表示的是当前控件的宽度，即getRight() – getLeft()<br>getHeight()：表示的是当前控件的高度，即getBottom() – getTop()</p>
+<p>2、 平移相关的位置参数，这几个参数都有相应的get和set方法：</p>
+<p>getTranslationX()：该View相对于父容器在X轴的偏移量，即x方向要平移的目标值。初始值为0，向左偏移值为负，向右偏移值为正。<br>getTranslationY()：该View相对于父容器在Y轴的偏移量，即y方向要平移的目标值。初始值为0，向上偏移为负，向下偏移为证。<br>getX()：表示View平移之后他的内容相对于父容器的x方向的坐标。<br>getY()：表示View平移之后他的内容相对于父容器的y方向的坐标。</p>
+<p>并且有</p>
+<p>translationX（相对于父容器平移的偏移量） +  getLeft()（该View原始位置左边界到其父容器左边界的距离，不变的值）= getX() （平移之后View的内容相对于父容器的坐标）；</p>
+<p>translationY（相对于父容器平移的偏移量） +  getTop()（该View原始位置上边界到其父容器上边界的距离，不变的值）= getX() （平移之后View的内容相对于父容器的坐标）；</p>
+<p>mScrollX：这个View离他原始位置水平方向的偏移量。getScrollX()方法可以获取这个值。<br>mScrollY：这个View离他原始位置垂直方向的偏移量。getScrollY()方法可以获取这个值。</p>
+<p>translationX/Y和mScrollX/Y的一个明显的区别是一个是相对于父容器的偏移矢量，一个是相对于他自己原始位置的偏移量。</p>
+<p>无论View怎么平移，其left，top，right，bottom表示的是其原始的坐标位置信息，并不会发生变化，相应的width和height也不会变化。变化的是translationX/Y，x/y，mScrollX/Y。</p>
+<p>3、  对于手指所触摸的点来说：</p>
+<p>event.getX()：表示的是触摸的点距离自身左边界的距离<br>event.getY()：表示的是触摸的点距离自身上边界的距离<br>event.getRawX：表示的是触摸点距离屏幕左边界的距离<br>event.getRawY：表示的是触摸点距离屏幕上边界的距离</p>
+<h2 id="二、View的滑动"><a href="#二、View的滑动" class="headerlink" title="二、View的滑动"></a>二、View的滑动</h2><p>View的滑动有三种方式，一种是View本身提供的scrollTo/scrollBy方法；一种是通过动画给View施加平移效果；还有一种是改变LayoutPaams使View重新布局而实现滑动。下面我们就这三种方法一一来分析。</p>
+<ul>
+<li>1、使用scrollTo/scrollBy平移</li>
+</ul>
+<p>① scrollTo</p>
+<p>我们先来看scrollTo（int x，int y）源码：</p>
+<p>public void scrollTo(int x, int y) {<br>    //偏移位置发生了改变<br>    if (mScrollX != x || mScrollY != y) {<br>        int oldX = mScrollX;<br>        int oldY = mScrollY;<br>        mScrollX = x;  //赋新值，保存当前偏移量<br>        mScrollY = y;<br>        //回调onScrollChanged方法<br>        onScrollChanged(mScrollX, mScrollY, oldX, oldY);<br>        if (!awakenScrollBars()) {<br>            invalidate();  //一般都引起重绘<br>        }<br>    }<br>}<br>scrollTo方法是将View的内容滑动到相应的位置，参考的坐标系原点为View的原始位置左上角，传入的参数xy为在x和y方向的偏移量。并且我们也可以看到传入的参数xy给了mScrollX/Y，mScrollX/Y在第一节我们已经说过，它是View相对于他原始位置的偏移量。</p>
+<p>如View的原始位置左上角为（0,0）执行scrollTo（100,100）以后，View的内容会出现在原始View位置的左上方；如果执行scrollTo（-100,-100），则View的内容会出现在原始View位置的右下方。</p>
+<p>也就是说假如我要移动view到坐标点（100，100），那么我的偏移量就是(0，0)  – （100，100） = （-100 ，-100）  ，我就要执行view.scrollTo(-100,-100),达到这个效果。这一点要注意偏移量的计算，我会在下面讲解偏移量的计算。</p>
+<p>② scrollBy</p>
+<p>接下来看scrollBy方法：</p>
+<p>public void scrollBy(int x, int y) {<br>    scrollTo(mScrollX + x, mScrollY + y);<br>}<br>很明显scrollBy只是调用了scrollTo方法。mScrollX + x和mScrollY + y，表示在原先偏移的基础上在发生偏移。</p>
+<p>假如我要移动view到坐标点（150，150），现在的位置是（120，120），那么我的偏移量就是（120，120）  – （150，150） = （-30 ，-30）  ，我就要执行view.scrollBy(-30,-30),达到这个效果。这一点要特别注意偏移量的计算。</p>
+<p>偏移量的计算 简单来说就是：<br>scrollTo：（0，0）- （目标位置x坐标，目标位置y坐标）= （x方向偏移量，y方向偏移量）；<br>scrollBy：（老位置x坐标，老位置y坐标，） – （目标位置x坐标，目标位置y坐标）= （x方向偏移量，y方向偏移量）。</p>
+<p>上述计算偏移量的坐标都是以他原始位置左上角为坐标原点，以右和下为正方向为坐标系。</p>
+<p>scrollTo/scrollBy的特点：只是将View的内容进行了移动，存在的问题是新的位置不能响应点击事件。</p>
+<ul>
+<li>2、 使用动画平移</li>
+</ul>
+<p>使用动画来移动View，主要是操作View的translationX和translationY属性。我们上面已经说过translationX和translationY是该View相对于父容器在X轴和Y轴的偏移量。动画方面可以使用：</p>
+<p>属性动画（可解决位置恢复和点击事件问题，但是不兼容3.0以下版本，需要引入开源的动画库来兼容）适合简单动画；</p>
+<p>传统的xml定义的动画，需要配置专门的属性来解决动画结束以后位置恢复问题，适合复杂的动画，但是不能解决点击事件的问题，只是内容发生了移动。</p>
+<p>以使用属性动画为例：</p>
+<p>ObjectAnimator<br>   .ofFloat(targetView，”translationX”,0,100)<br>   .setDuration(100)<br>   .start();<br>将View在100ms的时间里向右平移100px。</p>
+<p>3、改变布局参数</p>
+<p>改变margin，padding等，适合简单的动画，这里不再赘述。</p>
+<h2 id="三、弹性滑动"><a href="#三、弹性滑动" class="headerlink" title="三、弹性滑动"></a>三、弹性滑动</h2><p>在第二节中我们已经说了滑动的三种方式，但是那三种方式都是比较生硬的瞬间滑动过去，我们在自定义View的时候很多时候是需要渐进式滑动的，也就是想让移动有个持续的时间。这一节就来说说如何实现View的缓慢移动也就是弹性滑动。</p>
+<ul>
+<li>1、 使用Scroller</li>
+</ul>
+<p>Scroller用于实现View的弹性滑动，Scroller本身无法让View弹性滑动，它需要和View的computeScroll方法配合使用才能完成这个功能。Scroller的典型使用包括如下几步：</p>
+<p>① 创建Scroller的实例<br>② 调用startScroll()方法来初始化滚动数据并刷新界面<br>③ 重写computeScroll()方法，并在其内部完成平滑滚动的逻辑</p>
+<p>他的典型使用代码如下：</p>
+<p>Scroller scroller = new Scroller(mContext);</p>
+<p>private void smotthScrollTo(int destX,int destY){<br>   int scrollX = getScrollX();<br>   int deltaX = destX - scrollX;<br>   //1000ms内滑向destX 缓慢滑动<br>   mScroller.startScroll(scrollX,0,deltaX,0,1000);<br>   invalidata();<br>}</p>
+<p>@Overide<br>public void computeScroll(){<br>   //computeScrollerOffset 一方面是判断是否滑动结束<br>   //一方面是得出下一帧要平移的位置<br>   if(mScroller.computeScrollerOffset){<br>      scrollTo(mScroller.getCurrX(), mScroller.getCurrY());<br>      invalidate();<br>   }<br>}<br>上面的代码中 startScroll (int startX, int startY, int dx, int dy)，startX/Y表示滚动起点在水平或竖直方向滚动的偏移量；dx和dy表示滚动终点在水平或竖直方向滚动的偏移量；</p>
+<p>偏移量的计算在介绍scrollTo/scrollBy方法时已经说过，他是指View的原始的位置坐标减去目标位置的坐标，并且这些坐标都是以他原始位置左上角为坐标原点（0,0），以右和下为正方向为坐标系。</p>
+<p>代码的逻辑是这样的，当手动调用startScroll方法并调用invalidate重绘方法，View会调用draw方法，在draw方法中会回调computeScroll方法，computeScroll中会执行computeScrollerOffset判断是否需要滑动，进而调用scrollTo方法和invalidate重绘，然后触发draw方法会继续会继续回调computeScroll，直到完成滑动的过程。即过程是：startScroll–&gt;invalidate–&gt;draw–&gt;computeScrollerOffset–&gt;computeScroll。</p>
+<p>判断是否需要继续滑动并且得出下一个要滑动的位置的偏移量的方法是computeScrollerOffset。computeScrollerOffset方法会在内部根据滑动的整个偏移量和持续时间得出每段要滑动的偏移量。也就是说Scroller弹性滑动的思想是分段滑动的思想。</p>
+<ul>
+<li>2、使用延时策略</li>
+</ul>
+<p>结合上面Scroller的思想，使用Handler和Thread也可以以间隔很短的间隔调用scrollTo方法来让一个个短距离滑动看起来连续和有弹性，这里不再列出示例代码。</p>
+<ul>
+<li>3、使用动画</li>
+</ul>
+<p>在第二节中我们已经介绍了使用属性动画和传统的xml定义的动画来实现平移，使用动画也可以实现弹性滑动。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/06/21/3-Android开发中px，dp，dpi的含义和区别以及屏幕适配基础/" rel="next" title="Android开发中px，dp，dpi的含义和区别以及屏幕适配基础">
+                <i class="fa fa-chevron-left"></i> Android开发中px，dp，dpi的含义和区别以及屏幕适配基础
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/10/13/5-view知识体系（2）—— 从源码角度理解View的事件分发机制/" rel="prev" title="view知识体系（2）—— 从源码角度理解View的事件分发机制">
+                view知识体系（2）—— 从源码角度理解View的事件分发机制 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/myhead.jpg"
+                alt="黄凌霄" />
+            
+              <p class="site-author-name" itemprop="name">黄凌霄</p>
+              <p class="site-description motion-element" itemprop="description">Android App开发从业5年，参与过智慧校园、智能家居、智慧生活，网约车等领域的多个项目的研发工作。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、View位置参数"><span class="nav-number">1.</span> <span class="nav-text">一、View位置参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、View的滑动"><span class="nav-number">2.</span> <span class="nav-text">二、View的滑动</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、弹性滑动"><span class="nav-number">3.</span> <span class="nav-text">三、弹性滑动</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">黄凌霄</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

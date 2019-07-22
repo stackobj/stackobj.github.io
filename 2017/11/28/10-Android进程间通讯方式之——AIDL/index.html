@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="aidl是最常见也是Android进程间通讯首选的方案。使用这种方式进行跨进程通讯，需要按照规则创建.aidl文件，并且按照aidl规定的方式创建进程间的通讯接口。 比如有这样一个简单的需求：一个图书管理服务用来管理书本信息，提供的有查询图书和添加新书的方法，并且当有新书被添加时，可以主动通知客户端新书到达。服务端和客户端都运行在独立的进程当中。">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android进程间通讯方式之——AIDL">
+<meta property="og:url" content="http://yoursite.com/2017/11/28/10-Android进程间通讯方式之——AIDL/index.html">
+<meta property="og:site_name" content="黄凌霄的技术专栏">
+<meta property="og:description" content="aidl是最常见也是Android进程间通讯首选的方案。使用这种方式进行跨进程通讯，需要按照规则创建.aidl文件，并且按照aidl规定的方式创建进程间的通讯接口。 比如有这样一个简单的需求：一个图书管理服务用来管理书本信息，提供的有查询图书和添加新书的方法，并且当有新书被添加时，可以主动通知客户端新书到达。服务端和客户端都运行在独立的进程当中。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-05-11T14:34:36.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android进程间通讯方式之——AIDL">
+<meta name="twitter:description" content="aidl是最常见也是Android进程间通讯首选的方案。使用这种方式进行跨进程通讯，需要按照规则创建.aidl文件，并且按照aidl规定的方式创建进程间的通讯接口。 比如有这样一个简单的需求：一个图书管理服务用来管理书本信息，提供的有查询图书和添加新书的方法，并且当有新书被添加时，可以主动通知客户端新书到达。服务端和客户端都运行在独立的进程当中。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"always","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/11/28/10-Android进程间通讯方式之——AIDL/"/>
+
+
+
+
+
+  <title>Android进程间通讯方式之——AIDL | 黄凌霄的技术专栏</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">黄凌霄的技术专栏</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">不积跬步 无以致千里 不积小流 无以成江海</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/11/28/10-Android进程间通讯方式之——AIDL/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="黄凌霄">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myhead.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="黄凌霄的技术专栏">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android进程间通讯方式之——AIDL</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-28T10:31:00+08:00">
+                2017-11-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>aidl是最常见也是Android进程间通讯首选的方案。使用这种方式进行跨进程通讯，需要按照规则创建.aidl文件，并且按照aidl规定的方式创建进程间的通讯接口。</p>
+<h6 id="比如有这样一个简单的需求：一个图书管理服务用来管理书本信息，提供的有查询图书和添加新书的方法，并且当有新书被添加时，可以主动通知客户端新书到达。服务端和客户端都运行在独立的进程当中。"><a href="#比如有这样一个简单的需求：一个图书管理服务用来管理书本信息，提供的有查询图书和添加新书的方法，并且当有新书被添加时，可以主动通知客户端新书到达。服务端和客户端都运行在独立的进程当中。" class="headerlink" title="比如有这样一个简单的需求：一个图书管理服务用来管理书本信息，提供的有查询图书和添加新书的方法，并且当有新书被添加时，可以主动通知客户端新书到达。服务端和客户端都运行在独立的进程当中。"></a>比如有这样一个简单的需求：一个图书管理服务用来管理书本信息，提供的有查询图书和添加新书的方法，并且当有新书被添加时，可以主动通知客户端新书到达。服务端和客户端都运行在独立的进程当中。</h6><a id="more"></a>
+<p>很显然直接调用Service实例的方法是做不到多客户端数据同步的，因为每个客户端进程都相当于一个APP。这里我们使用AIDL的方式来实现这个需求。</p>
+<h3 id="1、创建aidl接口"><a href="#1、创建aidl接口" class="headerlink" title="1、创建aidl接口"></a>1、创建aidl接口</h3><p>首先需要创建aidl接口，即编写aidl文件。为了方便开发，最好是将aidl文件和使用这些aidl文件的java类都放入一个包里面，这样不同的客户端使用的时候，就可以直接复制整个文件夹到客户端工程。并且这样可以保证AIDL相关的包结构在服务端和客户端是一致的。如果包结构不一致，类的完整路径就不一样，客户端或服务端就无法正常反序列化通过AIDL接口传递过来的相关的类，导致错误。</p>
+<p>另外需要注意的就是通过AIDL接口传递的实体java类（Book.java）所在的包名和类名要和相应的aidl接口（Book.aidl）一致。原因同上。</p>
+<p>图书管理接口：IBookManager.aidl</p>
+<pre><code>package com.ryg.chapter_2.aidl;
+
+// Declare any non-default types here with import statements
+import com.ryg.chapter_2.aidl.Book;
+import com.ryg.chapter_2.aidl.IOnNewBookArrivedListener;
+
+interface IBookManager{
+
+   List&lt;Book&gt; getBookList();
+   void addBook(in Book book);
+   void registerNewBookListener(IOnNewBookArrivedListener listener);
+   void unregisterNewBookListener(IOnNewBookArrivedListener listener);
+
+}
+</code></pre><p>新书到达回调接口 ：IOnNewBookArrivedListener.aidl</p>
+<pre><code>// IOnNewBookArrivedListener.aidl
+package com.ryg.chapter_2.aidl;
+
+// Declare any non-default types here with import statements
+
+interface IOnNewBookArrivedListener {
+    /**
+     * Demonstrates some basic types that you can use as parameters
+     * and return values in AIDL.
+     */
+    void onNewBookArrived(int newbookid, String newbookName);
+}
+</code></pre><p>图书实体：Book.aidl，因为要跨进程传递这个实体类，所以要声明此实体类要实现parcelable接口。</p>
+<p>// Bookdad.aidl<br>package com.ryg.chapter_2.aidl;</p>
+<p>// Declare any non-default types here with import statements</p>
+<p>parcelable Book;</p>
+<h3 id="2、创建远程服务进程"><a href="#2、创建远程服务进程" class="headerlink" title="2、创建远程服务进程"></a>2、创建远程服务进程</h3><p>下面我们来创建一个Service来使用上面创建的aidl接口。此服务需要在mainfest文件中配置为另外的进程。RemoteBookManagerService中的onBind方法中要返回这个mBinder这个实例，客户端在bindService的时候获取到这个接口，就可以调用getBookList等这些方法来和远程服务进程通讯了。</p>
+<pre><code>private final IBookManager.Stub mBinder = new IBookManager.Stub() {
+
+@Override
+public List&lt;Book&gt; getBookList() throws RemoteException {
+    return booklist;
+}
+@Override
+public void addBook(Book book) throws RemoteException {
+    if(null!= booklist){
+        booklist.add(book);
+    }else{
+        Log.i(TAG,&quot;添加失败！&quot;);
+    }
+}
+
+@Override
+public void registerNewBookListener(IOnNewBookArrivedListener listener) throws RemoteException {
+    newbookListenerlist.add(listener);
+}
+
+@Override
+public void unregisterNewBookListener(IOnNewBookArrivedListener listener) throws RemoteException {
+}
+</code></pre><p>};</p>
+<h3 id="3、创建客户端进程"><a href="#3、创建客户端进程" class="headerlink" title="3、创建客户端进程"></a>3、创建客户端进程</h3><p>客户端进程可以绑定服务，绑定成功以后，获取服务端返回的IBinder对象，将这个对象还原为远程服务对象，就可以使用远程服务的接口了。</p>
+<p>private ServiceConnection mConnection = new ServiceConnection() {<br>    public void onServiceConnected(ComponentName className, IBinder service) {<br>        Log.i(TAG,”onServiceConnected”);<br>        IBookManager mIBookManager = IBookManager.Stub.asInterface(service);<br>        try {<br>            List<book> list = mIBookManager.getBookList();<br>            if(null!=list){<br>                Log.i(TAG,”booklist size：”+list.size());<br>            }</book></p>
+<pre><code>        mIBookManager.addBook(new Book(2,&quot;android开发设计模式&quot;));
+        Log.i(TAG,&quot;booklist size：&quot;+mIBookManager.getBookList().size());
+
+        mIBookManager.registerNewBookListener(new IOnNewBookArrivedListener.Stub() {
+            @Override
+            public void onNewBookArrived(int newbookid, String newbookName) throws RemoteException {
+                Log.i(TAG,&quot;新书到达！：&quot;+newbookName);
+            }
+        });
+
+    } catch (RemoteException e) {
+
+    }
+}
+public void onServiceDisconnected(ComponentName className) {
+    Log.i(TAG,&quot;onServiceDisconnected&quot;);
+    mIBookManager = null;
+}
+</code></pre><p>};<br>另外还有一个实体类 Book.java，因为要跨进程传递，所以实现了parcelable接口。注意此类要和Book.aidl所在的包名类名一致。否则无法正常反序列化。</p>
+<pre><code>public class Book implements Parcelable{
+
+public int bookId;
+public String bookName;
+
+public Book(int bookId, String bookName) {
+    this.bookId = bookId;
+    this.bookName = bookName;
+}
+
+@Override
+public int describeContents() {
+    return 0;
+}
+
+@Override
+public void writeToParcel(Parcel out, int flags) {
+    out.writeInt(bookId);
+    out.writeString(bookName);
+}
+
+public static final Creator&lt;Book&gt; CREATOR = new Creator&lt;Book&gt;() {
+    @Override
+    public Book createFromParcel(Parcel in) {
+        return new Book(in);
+    }
+
+    @Override
+    public Book[] newArray(int size) {
+        return new Book[size];
+    }
+};
+
+protected Book(Parcel in) {
+    bookId = in.readInt();
+    bookName = in.readString();
+}
+}
+</code></pre><p>如果要进行权限验证，可以在服务端的onBind方法中做验证，如果是非法的客户端，可以直接返回空。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/06/9-Android Service的生命周期笔记/" rel="next" title="Android Service生命周期笔记">
+                <i class="fa fa-chevron-left"></i> Android Service生命周期笔记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/11/29/11-Android进程间通讯方式之——Messenger/" rel="prev" title="Android进程间通讯方式之——Messenger">
+                Android进程间通讯方式之——Messenger <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/myhead.jpg"
+                alt="黄凌霄" />
+            
+              <p class="site-author-name" itemprop="name">黄凌霄</p>
+              <p class="site-description motion-element" itemprop="description">Android App开发从业5年，参与过智慧校园、智能家居、智慧生活，网约车等领域的多个项目的研发工作。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-6"><a class="nav-link" href="#比如有这样一个简单的需求：一个图书管理服务用来管理书本信息，提供的有查询图书和添加新书的方法，并且当有新书被添加时，可以主动通知客户端新书到达。服务端和客户端都运行在独立的进程当中。"><span class="nav-number">1.</span> <span class="nav-text">比如有这样一个简单的需求：一个图书管理服务用来管理书本信息，提供的有查询图书和添加新书的方法，并且当有新书被添加时，可以主动通知客户端新书到达。服务端和客户端都运行在独立的进程当中。</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1、创建aidl接口"><span class="nav-number"></span> <span class="nav-text">1、创建aidl接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、创建远程服务进程"><span class="nav-number"></span> <span class="nav-text">2、创建远程服务进程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3、创建客户端进程"><span class="nav-number"></span> <span class="nav-text">3、创建客户端进程</span></a></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">黄凌霄</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

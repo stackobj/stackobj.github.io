@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="关于View的事件分发机制是Android的核心内容之一，关于这部分内容网络上有很多，在这里我也简单谈下我对View的事件分发机制的理解。我将从以下几个方面开始：  Android屏幕视图的构成  什么是事件序列  事件的传递过程  ViewGroup对事件的分发 从源码的角度分析ViewGroup的分发  补充说明">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="view知识体系（2）—— 从源码角度理解View的事件分发机制">
+<meta property="og:url" content="http://yoursite.com/2017/10/13/5-view知识体系（2）—— 从源码角度理解View的事件分发机制/index.html">
+<meta property="og:site_name" content="黄凌霄的技术专栏">
+<meta property="og:description" content="关于View的事件分发机制是Android的核心内容之一，关于这部分内容网络上有很多，在这里我也简单谈下我对View的事件分发机制的理解。我将从以下几个方面开始：  Android屏幕视图的构成  什么是事件序列  事件的传递过程  ViewGroup对事件的分发 从源码的角度分析ViewGroup的分发  补充说明">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/img/android屏幕坐标参考图3.jpg">
+<meta property="og:image" content="http://yoursite.com/img/android屏幕坐标参考图4.jpg">
+<meta property="og:updated_time" content="2018-05-11T14:34:36.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="view知识体系（2）—— 从源码角度理解View的事件分发机制">
+<meta name="twitter:description" content="关于View的事件分发机制是Android的核心内容之一，关于这部分内容网络上有很多，在这里我也简单谈下我对View的事件分发机制的理解。我将从以下几个方面开始：  Android屏幕视图的构成  什么是事件序列  事件的传递过程  ViewGroup对事件的分发 从源码的角度分析ViewGroup的分发  补充说明">
+<meta name="twitter:image" content="http://yoursite.com/img/android屏幕坐标参考图3.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"right","display":"always","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/10/13/5-view知识体系（2）—— 从源码角度理解View的事件分发机制/"/>
+
+
+
+
+
+  <title>view知识体系（2）—— 从源码角度理解View的事件分发机制 | 黄凌霄的技术专栏</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">黄凌霄的技术专栏</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">不积跬步 无以致千里 不积小流 无以成江海</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/13/5-view知识体系（2）—— 从源码角度理解View的事件分发机制/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="黄凌霄">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myhead.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="黄凌霄的技术专栏">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">view知识体系（2）—— 从源码角度理解View的事件分发机制</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-13T15:17:41+08:00">
+                2017-10-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>关于View的事件分发机制是Android的核心内容之一，关于这部分内容网络上有很多，在这里我也简单谈下我对View的事件分发机制的理解。我将从以下几个方面开始：</p>
+<ol>
+<li>Android屏幕视图的构成 </li>
+<li>什么是事件序列 </li>
+<li>事件的传递过程 </li>
+<li>ViewGroup对事件的分发</li>
+<li>从源码的角度分析ViewGroup的分发 </li>
+<li>补充说明<a id="more"></a>
+</li>
+</ol>
+<h2 id="1、Android屏幕视图的构成"><a href="#1、Android屏幕视图的构成" class="headerlink" title="1、Android屏幕视图的构成"></a>1、Android屏幕视图的构成</h2><p><img src="/img/android屏幕坐标参考图3.jpg" alt="AndroidEs屏幕坐标参考"></p>
+<p>Android屏幕上显示的各个视图其实是Activity-&gt;PhoneWindows-&gt;DecorView-&gt;ContentView这样层层嵌套组成的，如上图所示。OnCreate中setContentView方法所设置的内容View就是最内层的ContentView。TitleView是默认的标题栏，一般都会隐藏掉。</p>
+<p><img src="/img/android屏幕坐标参考图4.jpg" alt="AndroidEs屏幕坐标参考"></p>
+<p>最内层的ContentView由View和ViewGroup构成的，ViewGroup又可以嵌套View和ViewGroup，如上图所示的树形图。</p>
+<p>Android屏幕上所呈现的视图，就是这样构建的。</p>
+<h2 id="2、什么是事件序列"><a href="#2、什么是事件序列" class="headerlink" title="2、什么是事件序列"></a>2、什么是事件序列</h2><p>当我们在屏幕上进行点击或触摸操作的时候，在Android看来，发生了以下几个事件类型：</p>
+<p>① Down ：按下，当手指解除屏幕的那一刻，这个事件就产生了</p>
+<p>② Move ：移动，当按下屏幕以后，手指做了移动的动作，</p>
+<p>③ Up ：抬起，当按下或者移动手指过后，手指离开屏幕的那一刻，产生了这个事件</p>
+<p>按下-&gt;移动-&gt;抬起，或者按下-&gt;抬起这三个或两个事件组成的一个连贯的动作，Android称之为“事件序列”。Android对触摸屏幕操作的处理也是针对每个这样的事件序列为单位进行的。</p>
+<h2 id="3、事件的传递过程"><a href="#3、事件的传递过程" class="headerlink" title="3、事件的传递过程"></a>3、事件的传递过程</h2><p>当手指接触屏幕的那一刻，即发生Down事件的时候，Android就已经开始处理这个事件了。这个事件会沿着视图树的最顶级Activity由最外层向最内层传播，Activity-&gt;PhoneWindows-&gt;DecorView-&gt;ContentView。</p>
+<p>① 【Activity对事件的分发】Activity对事件的分发如下伪代码所示，如果有Windows处理，那就说明这个事件已经处理了，如果没有Windows处理，Activity将自己处理。</p>
+<pre><code>public boolean dispatchTouchEvent(MotionEvent ev) {
+
+    //如果有Windows处理这个事件
+    if(getWindow.superDispathTouchEvent(ev)){ 
+        return true;//拦截这个事件 说明这个事件已经被处理
+    }
+    return onTouchEvent(ev);//没有Windows处理 自己处理
+}
+</code></pre><p>② 【PhoneWindows对事件的分发】Android中这个Windows是抽象类，他的实现类是PhoneWidows，PhoneWidows对事件的分发如下代码所示：</p>
+<pre><code>public boolean superDispathTouchEvent(MotionEvent ev) {
+     //PhoneWidows直接把事件交给DecorView处理
+     return mDecor.superDispathTouchEvent(ev);
+}
+</code></pre><p>③ 【DecorView对事件的分发】DecorView层实际上是用FrameLayout实现的，他的子View是TitleView和ContentView。FrameLayout以及它的子View：TitleView和ContentView的根布局都是ViewGroup的子类，所以我们在下面将着重分析事件在层叠的ViewGroup中的传递。</p>
+<h2 id="4、ViewGroup对事件的分发"><a href="#4、ViewGroup对事件的分发" class="headerlink" title="4、ViewGroup对事件的分发"></a>4、ViewGroup对事件的分发</h2><p>ViewGroup控制事件分发的核心代码逻辑如下面这段伪代码所示：</p>
+<pre><code>public boolean dispatchTouchEvent(MotionEvent ev) {
+    boolean consume = false;
+    if(onInterceptTouchEvent(ev)){
+        //如果拦截 则执行ViewGroup自己的onTouchEvent(ev)来处理这个事件
+        consume = onTouchEvent(ev);
+    }else{
+        //如果不拦截 则将事件传递给这个ViewGroup的子View来处理
+        consume = child.dispatchTouchEvent(ev);
+    }
+    return consume;
+}
+</code></pre><p>上面这段伪代码其实逻辑很简单：当前ViewGroup接收到一个事件以后，如果需要拦截的话（onInterceptTouchEvent(ev)返回true），那么他将执行自己的onTouchEvent来消耗（处理）这个事件，如果不拦截就交给他的子View或子ViewGroup来进行处理。</p>
+<p>所以一个Down事件发生以后，ViewGroup决定要不要自己处理的关键在于onInterceptTouchEvent方法，这个方法默认返回false，即不拦截，我们自定义ViewGroup的时候如果包含滑动冲突，需要重写此方法，根据相关的逻辑来判断是否需要拦截事件自己处理。</p>
+<!--所以整个过程应该是这样的，我们以事件在根布局DecorView这一层的分发为例，其他DecorView的子View的分发和这一层类似。当DecorView层的根布局得到事件以后将执行dispatchTouchEvent(ev)进行事件分发：
+
+① DecorView层的根布局的dispatchTouchEvent(ev)如果返回true，造成这个结果有两种可能：一是成功执行了拦截（onInterceptTouchEvent(ev)返回true），并且消耗（onTouchEvent(ev))返回true）；二是没有拦截这个事件，但是子View的dispatchTouchEvent(ev)返回了true。子View的dispatchTouchEvent(ev)返回true的原因同样有这两种可能。DecorView的dispatchTouchEvent(ev)这个结果被上层的Windows和Activity拿到以后，认为事件执行结束，Activity就不再执行他的onTouchEvent(ev)方法了。
+
+② DecorView层的根布局的dispatchTouchEvent(ev)如果返回false，造成这个结果同样有两种可能：一是成功执行了拦截（onInterceptTouchEvent(ev)返回true），但是没有消耗成功（onTouchEvent(ev))返回false）；二是没有拦截这个事件，但是子View的dispatchTouchEvent(ev)返回了false。子View的dispatchTouchEvent(ev)返回false的原因同样有这两种可能。DecorView的dispatchTouchEvent(ev)这个结果被上层的Windows和Activity拿到以后，认为事件没有被成功响应，Activity就开始执行他的onTouchEvent(ev)方法。-->
+<p>以上就是事件从Activity到Windows，再到DecorView和ContentView的传递过程。但是还有一个需要注意的是我们上面说过，Android处理事件是以事件序列为单位进行的，即按下，移动，抬起这三种动作的处理是具有相关性的，即三种事件并不是同一时刻到来而是先是down，再是move或up，下面我们来分析下Android如何处理这三种事件类型。</p>
+<h2 id="5、从源码的角度分析ViewGroup的分发"><a href="#5、从源码的角度分析ViewGroup的分发" class="headerlink" title="5、从源码的角度分析ViewGroup的分发"></a>5、从源码的角度分析ViewGroup的分发</h2><p>从4中的伪代码我们已经知道了ViewGroup大概的分发流程，即如果拦截就自己处理，否则就交给子View或ViewGroup处理。其实这个说法只对于Dwon事件是准确的，因为Down事件发生以后，这个事件是严格在各层ViewGroup传递的，如果有拦截并成功消耗就不继续往下传递。否则就交给他的子View继续往下传递。而对于同一个事件序列中的Move和Up来说，就不是这样的了，比如同一个事件序列中的Move，<strong>Android会根据谁处理过同一个事件序列的Down事件，而把这个Move事件也交个他处理。</strong>Up也是同样的，谁处理过同一个事件的Move（如果没有Move会根据Down），那么Up事件也交给他处理。</p>
+<p>那么Android是如何做到：<strong>如果一个ViewGroup拦截了事件序列中的某个事件，同一个事件序列的剩下的事件也交给他处理</strong>的呢？下面我们从源码角度上分析ViewGroup如何对不同的事件类型进行处理，ViewGroup的dispatchTouchEvent(ev)有这么一段（代码已简化处理）：</p>
+<pre><code>final boolean intercepted;//是否拦截
+if（action = Down || touchTarget !=null）{
+   intercepted = onInterceptTouchEvent(ev);
+}else{
+   intercepted = true;
+}
+</code></pre><p>上面代码的意思是：</p>
+<p>① 如果是Down事件，或者不是Down事件（Move或Up），但是此ViewGroup的子View处理过除了Down以外的事件（如果子View处理过的话touchTarget !=null），就判断需不需要拦截。</p>
+<p>② 如果不是Dwon事件，并且事件又没有交给他的子View处理（touchTarget ==null）说明这个ViewGroup拦截过这个事件，就不再执行onInterceptTouchEvent(ev)判断是否需要拦截，自己来处理这个事件序列。</p>
+<p>所以可以得出一个结论，如果某层ViewGroup没有拦截过同一个事件序列的某个事件，则这个ViewGroup在执行dispatchTouchEvent(ev)会再次执行onInterceptTouchEvent(ev)判断是否需要拦截；如果ViewGroup拦截过同一个事件序列中的事件，则dispatchTouchEvent(ev)不会再执行onInterceptTouchEvent(ev)判断是否需要拦截，而是自己直接拦截并处理。</p>
+<h2 id="6、补充说明"><a href="#6、补充说明" class="headerlink" title="6、补充说明"></a>6、补充说明</h2><p>① View没有onInterceptTouchEvent(ev)方法，事件传递过来以后，直接执行OnTouchEvent(ev)，因为View不能包裹View，他处于事件分发的末端。</p>
+<p>② ViewGroup默认不拦截任何事件，他的onInterceptTouchEvent(ev)默认返回false。如果需要处理滑动冲突，需要开发者重写onInterceptTouchEvent(ev)，处理滑动冲突的基本方法是：不拦截Down和Up事件，并且在Move事件中根据条件（比如Move的角度或滑动的横纵坐标的距离）决定是否拦截。</p>
+<p>③ ViewGroup在接收到一个事件序列的任何一个事件，如果他自己未拦截，并且也没有包裹子View（因为有子View的话，ViewGroup会默认把事件传递给这个末端的View处理，而末端的View是不能拦截事件的，只能处理），那么这个事件序列的剩余事件还会调用onInterceptTouchEvent(ev)问他是否拦截。也就是整个View树上的元素，只要有一个元素决定拦截，那么这个事件序列的剩余事件还会交给他处理，这一点从上面的ViewGroup源码也能看出来。</p>
+<p>④ 某个 ViewGroup决定拦截，但是又不消耗Down（onTouchEvent返回false），即这个ViewGroup的dispatchTouchEvent(ev)返回false，这个时候其实整个View树的child.dispatchTouchEvent(ev)都返回了false，那么事件将在Activity那里处理，即Activity的onTouchEvent会被调用。这一点可以从第4小结的伪代码能看出来，事件会交给顶端的Activity。</p>
+<p>⑤  如果某个View不消耗Down（onTouchEvent返回false），则同一个事件序列的其他事件不会再交给他处理，并且事件将交给他的父元素处理，即父元素的OnTouchEvent会被执行。</p>
+<p>⑥ 某个View如果消耗了Down事件，但是不消耗其他事件，那么这个事件会消失，父元素的OnTouchEvent并不会被调用。当前View也可以收到后续的事件，最终这些消失的点击事件会传递给Activity处理。—–《Android开发艺术探索》的结论，我还尚未证实。</p>
+<p>⑦ 当View或ViewGroup处理事件的时候，如果开发者有设置OnTouchListener，则回调OnTouchListener里的onTouch。</p>
+<p>用户可以在onTouch方法中创建一个GestureDetector对象，并实现OnGestureListener接口，根据需要还可以实现OnDoubleTapListener从而监听双击行为，代码如下所示：</p>
+<pre><code>GestureDetector mGesturedetector = new GestureDetector(this);
+//解决长按屏幕后无法拖动的现象
+mGesturedetector.setIsLongpressEnabled(false);
+myview.setOnTouchListener(new View.OnTouchListener() {
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        boolean consume  = mGesturedetector.onTouchEvent(event);
+        return consume;
+    }
+});
+</code></pre><p>如果开发者在onTouch方法中返回false（不拦截），则此View会继续回调ViewGroup或View的onTouchEvent回调，如果用户有设置OnClickListener或OnLongClickListener，那么在onTouchEvent中将会执行OnClickListener或OnLongClickListener的onClick回调方法。</p>
+<p>即优先级为OnTouchListener（如果有）–&gt;OnTouchEvent–&gt;OnClickListener或OnLongClickListener（如果有）。具体在onTouchEvent中是如何判断长按和短按，这里不再详细说明其逻辑，后续可能会出一篇详细的文章介绍。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/10/10/4-view知识体系（1）—— View的基础知识以及View滑动的几种方式/" rel="next" title="view知识体系（1）—— View的基础知识以及View滑动的几种方式">
+                <i class="fa fa-chevron-left"></i> view知识体系（1）—— View的基础知识以及View滑动的几种方式
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/10/17/6-view知识体系（3）—— 浅析View的绘制流程/" rel="prev" title="view知识体系（3）—— 浅析View的绘制流程">
+                view知识体系（3）—— 浅析View的绘制流程 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/myhead.jpg"
+                alt="黄凌霄" />
+            
+              <p class="site-author-name" itemprop="name">黄凌霄</p>
+              <p class="site-description motion-element" itemprop="description">Android App开发从业5年，参与过智慧校园、智能家居、智慧生活，网约车等领域的多个项目的研发工作。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1、Android屏幕视图的构成"><span class="nav-number">1.</span> <span class="nav-text">1、Android屏幕视图的构成</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2、什么是事件序列"><span class="nav-number">2.</span> <span class="nav-text">2、什么是事件序列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3、事件的传递过程"><span class="nav-number">3.</span> <span class="nav-text">3、事件的传递过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4、ViewGroup对事件的分发"><span class="nav-number">4.</span> <span class="nav-text">4、ViewGroup对事件的分发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5、从源码的角度分析ViewGroup的分发"><span class="nav-number">5.</span> <span class="nav-text">5、从源码的角度分析ViewGroup的分发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6、补充说明"><span class="nav-number">6.</span> <span class="nav-text">6、补充说明</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">黄凌霄</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
