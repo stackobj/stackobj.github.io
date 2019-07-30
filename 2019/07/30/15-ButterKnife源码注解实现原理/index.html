@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="黄凌霄的技术专栏">
 <meta property="og:description" content="BufferKnife是一种当前比较热门的框架，我们可以使用注解的方式@BindView(R.id.viewid)将控件的id传递给它，它将生成一些功能类去处理这些值，使Activity里面不需要再写大量的findViewById，使我们有更多时间专注于业务处理。比如依赖注入框架Dagger2，我们使用注解的方式把new这个过程省掉，不需要再去写各种单例方法来维护单例，使代码大大解耦，可见注解还是">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-07-30T14:46:33.232Z">
+<meta property="og:updated_time" content="2019-07-30T14:54:18.418Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ButterKnife源码注解实现原理">
 <meta name="twitter:description" content="BufferKnife是一种当前比较热门的框架，我们可以使用注解的方式@BindView(R.id.viewid)将控件的id传递给它，它将生成一些功能类去处理这些值，使Activity里面不需要再写大量的findViewById，使我们有更多时间专注于业务处理。比如依赖注入框架Dagger2，我们使用注解的方式把new这个过程省掉，不需要再去写各种单例方法来维护单例，使代码大大解耦，可见注解还是">
@@ -313,9 +313,8 @@
         <p>BufferKnife是一种当前比较热门的框架，我们可以使用注解的方式@BindView(R.id.viewid)将控件的id传递给它，它将生成一些功能类去处理这些值，使Activity里面不需要再写大量的findViewById，使我们有更多时间专注于业务处理。比如依赖注入框架Dagger2，我们使用注解的方式把new这个过程省掉，不需要再去写各种单例方法来维护单例，使代码大大解耦，可见注解还是很有用的。另外还有一些热门框架比如例如EventBus，Greendao，Arouter都有使用注解来实现。</p>
 <p>除了这些热门框架，Java JDK自带的也有一些注解比如：@Override（校验格式），@Deprecated：（标记过时的方法或者类），@SuppressWarnnings（注解主要用于抑制编译器警告）等等。java1.8之后有新增了一些注解像@FunctionalInterface()这样的,对于每个注解的具体使用细节这里不再论述。所以注解还是很有用的，这篇文章主要是讲解下注解的概念，以及如何像那些热门框架那样使用注解。</p>
 <a id="more"></a>
-<p>##注解的概念</p>
-<p>注解（Annotation），也叫元数据。一种代码级别的说明。它是JDK1.5及以后版本引入的一个特性，与类、接口、枚举是在同一个层次。它可以声明在包、类、字段、方法、局部变量、方法参数等的前面，用来对这些元素进行说明。</p>
-<p>##注解的使用<br>首先，我们看一个定义一个注解的小例子，比如：</p>
+<h2 id="注解的概念"><a href="#注解的概念" class="headerlink" title="注解的概念"></a>注解的概念</h2><p>注解（Annotation），也叫元数据。一种代码级别的说明。它是JDK1.5及以后版本引入的一个特性，与类、接口、枚举是在同一个层次。它可以声明在包、类、字段、方法、局部变量、方法参数等的前面，用来对这些元素进行说明。</p>
+<h2 id="注解的使用"><a href="#注解的使用" class="headerlink" title="注解的使用"></a>注解的使用</h2><p>首先，我们看一个定义一个注解的小例子，比如：</p>
 <pre><code>@Target(ElementType.Method)
 
 @Retention(RetentionPolicy.RUNTIME)
@@ -324,8 +323,7 @@ public @interface Test {
 } 
 </code></pre><p>这样我们便定义了一个Test的注解，然后我们就可以在一个方法的上面，像使用@Override那样，使用@Test来注解这个方法了，然后再去去解析这个注解做一些业务处理，就可以了，这个就是使用注解的大概流程。</p>
 <p>同时，我们也注意到上面那个例子当中出现了针对注解的注解，例如@Target，@Retention，这些我们称为“元注解”，元注解的作用就是负责注解其他注解。Java5定义了4个标准的Meta Annotation类型，它们被用来提供对其它 Annotation类型作说明。分别是：@Target，@Retention，@Documented，@Inherited。</p>
-<p>###@Target</p>
-<p>@Target说明了Annotation所修饰的对象范围，即被描述的注解可以用在什么地方：Annotation可被用于 包、类（包括Annotation类）、接口、枚举、方法、构造方法、成员变量、枚举值、方法参数和本地变量（如循环变量、catch参数）。<br>@Target取值(ElementType)</p>
+<h3 id="Target"><a href="#Target" class="headerlink" title="@Target"></a>@Target</h3><p>@Target说明了Annotation所修饰的对象范围，即被描述的注解可以用在什么地方：Annotation可被用于 包、类（包括Annotation类）、接口、枚举、方法、构造方法、成员变量、枚举值、方法参数和本地变量（如循环变量、catch参数）。<br>@Target取值(ElementType)</p>
 <p>CONSTRUCTOR：用于描述构造器</p>
 <p>FIELD：用于描述域</p>
 <p>LOCAL_VARIABLE：用于描述局部变量</p>
@@ -333,21 +331,18 @@ public @interface Test {
 <p>PACKAGE：用于描述包</p>
 <p>PARAMETER：用于描述参数</p>
 <p>TYPE：用于描述类、接口(包括注解类型) 或enum声明</p>
-<p>###@Retention</p>
-<p>@Retention作用：表示需要在什么级别保存该注释信息，用于描述注解的生命周期（即：被描述的注解在什么范围内有效）。某些Annotation仅出现在源代码中，另一些却被编译在class文件中，还有一些在class被装载时将被读取。</p>
+<h3 id="Retention"><a href="#Retention" class="headerlink" title="@Retention"></a>@Retention</h3><p>@Retention作用：表示需要在什么级别保存该注释信息，用于描述注解的生命周期（即：被描述的注解在什么范围内有效）。某些Annotation仅出现在源代码中，另一些却被编译在class文件中，还有一些在class被装载时将被读取。</p>
 <p>@Retention取值来自java.lang.annotation.RetentionPolicy的枚举类型值：</p>
 <p>SOURCE:在源文件中有效（即源文件保留）</p>
 <p>CLASS:在class文件中有效（即class保留）</p>
 <p>RUNTIME:在运行时有效（即运行时保留）</p>
-<p>###@Documented</p>
-<p>Documented 注解表明这个注解应该被 javadoc工具记录. 默认情况下,javadoc是不包括注解的. 但如果声明注解时指定了 @Documented,则它会被 javadoc 之类的工具处理, 所以注解类型信息也会被包括在生成的文档中. </p>
-<p>###@Inherited</p>
-<p>@Inherited 元注解是一个标记注解，@Inherited阐述了某个被标注的类型是被继承的。 <strong>如果一个使用了@Inherited修饰的annotation类型被用于一个class，则这个annotation将被用于该class的子类</strong>。 也就是说在父类使用了这个被@Inherited修饰的注解，这个父类的子类就都有这个注解了，不用在子类一个个添加这个注解了。即<strong>如果一个子类想获取到父类上的注解信息， 那么必须在父类上使用的注解上面 加上@Inherit关键字</strong></p>
+<h3 id="Documented"><a href="#Documented" class="headerlink" title="@Documented"></a>@Documented</h3><p>Documented 注解表明这个注解应该被 javadoc工具记录. 默认情况下,javadoc是不包括注解的. 但如果声明注解时指定了 @Documented,则它会被 javadoc 之类的工具处理, 所以注解类型信息也会被包括在生成的文档中. </p>
+<h3 id="Inherited"><a href="#Inherited" class="headerlink" title="@Inherited"></a>@Inherited</h3><p>@Inherited 元注解是一个标记注解，@Inherited阐述了某个被标注的类型是被继承的。 <strong>如果一个使用了@Inherited修饰的annotation类型被用于一个class，则这个annotation将被用于该class的子类</strong>。 也就是说在父类使用了这个被@Inherited修饰的注解，这个父类的子类就都有这个注解了，不用在子类一个个添加这个注解了。即<strong>如果一个子类想获取到父类上的注解信息， 那么必须在父类上使用的注解上面 加上@Inherit关键字</strong></p>
 <p>有一点需要注意的是@Inherited修饰的annotation类型是被标注过的class的子类所继承。类并不从它所实现的接口继承annotation；方法并不从它所重载的方法继承annotation。 </p>
-<p>##解析注解</p>
-<p>下面通过一个小例子来讲解下从定义一个注解，到使用和解析一个注解的过程。</p>
-<p>###定义注解<br>    package com.hlx.annotation;</p>
-<pre><code>import java.lang.annotation.Documented;
+<h2 id="解析注解"><a href="#解析注解" class="headerlink" title="解析注解"></a>解析注解</h2><p>下面通过一个小例子来讲解下从定义一个注解，到使用和解析一个注解的过程。</p>
+<h3 id="定义注解"><a href="#定义注解" class="headerlink" title="定义注解"></a>定义注解</h3><pre><code>package com.hlx.annotation;
+
+import java.lang.annotation.Documented;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.annotation.ElementType;
@@ -361,8 +356,7 @@ import java.lang.annotation.Retention;
 public @interface Component {
     String identifier () default &quot;&quot;;
 }
-</code></pre><p>###使用注解</p>
-<pre><code>package com.hlx;
+</code></pre><h3 id="使用注解"><a href="#使用注解" class="headerlink" title="使用注解"></a>使用注解</h3><pre><code>package com.hlx;
 
 import com.hlx.annotation.Component;
 @Component(identifier=&quot;upper&quot;)
@@ -375,8 +369,7 @@ public class UpperCaseComponent {
       }
     }
 }
-</code></pre><p>###解析注解</p>
-<pre><code>package com.hlx;
+</code></pre><h3 id="解析注解-1"><a href="#解析注解-1" class="headerlink" title="解析注解"></a>解析注解</h3><pre><code>package com.hlx;
 
 import com.hlx.annotation.Component;
 
@@ -400,9 +393,7 @@ public class Client {
 <pre><code>获取到注解内容为：upper 
 </code></pre><p>如果把@Component的@Retention设置为 RetentionPolicy.SOURCE或者RetentionPolicy.CLASS，则会得到如下结果，验证了上文中对@Retention的描述:SOURCE:在源文件中有效（即源文件保留）,<br>CLASS:在class文件中有效（即class保留,只保留到编译期间）</p>
 <pre><code>没有获取到注解
-</code></pre><p>##ButterKnife源码中注解实现原理</p>
-<p>###ButterKnife大概原理</p>
-<p>ButterKnife（<a href="https://github.com/JakeWharton/butterknife" target="_blank" rel="noopener">https://github.com/JakeWharton/butterknife</a>）是一款android平台的依赖注入框架，通过该工具可以实现View、OnClickListener的注入，省去了findViewById、setOnClickListener的过程。具体的使用方法，不再列举，请参考框架主页介绍。</p>
+</code></pre><h2 id="ButterKnife源码中注解实现原理"><a href="#ButterKnife源码中注解实现原理" class="headerlink" title="ButterKnife源码中注解实现原理"></a>ButterKnife源码中注解实现原理</h2><h3 id="ButterKnife大概原理"><a href="#ButterKnife大概原理" class="headerlink" title="ButterKnife大概原理"></a>ButterKnife大概原理</h3><p>ButterKnife（<a href="https://github.com/JakeWharton/butterknife" target="_blank" rel="noopener">https://github.com/JakeWharton/butterknife</a>）是一款android平台的依赖注入框架，通过该工具可以实现View、OnClickListener的注入，省去了findViewById、setOnClickListener的过程。具体的使用方法，不再列举，请参考框架主页介绍。</p>
 <p>ButterKnife通过@BindView注解实现findViewById的功能，完成View注入；通过@OnClick完成OnClickListener点击事件的注入，给ID对应的View设置点击事件和响应函数。ButterKnife使用的就是编译时解析注解的技术，在编译时对注解进行解析，生成中间文件，在ButterKnife.bind时引用注解编译器生成的中间文件，完成依赖注入。</p>
 <p>我们看下ButterKnife中@BindView注解源码：</p>
 <pre><code>/**
@@ -418,8 +409,7 @@ public @interface BindView {
   @IdRes int value();
 }
 </code></pre><p>BindView注解定义中使用了元注解@Retention(CLASS)定义了该注解只保留到编译期间，运行时会丢弃；@Target(FIELD)表示该注解只能用在成员变量上面。</p>
-<p>###Java抽象类AbstractProcessor介绍</p>
-<p>如果我们在代码中使用@BindView，那么在编译时，ButterKnife会在一个继承自AbstractProcessor的子类中对注解进行解析。因为在java文件编译时，如果一个注解的 @Retention 为 CLASS，那么我们需要自定义一个类继承自AbstractProcessor（编译器在编译时自动查找所有继承自 AbstractProcessor 的类，然后调用他们的 process 方法），然后重写其中的 process 函数。AbstractProcessor，是一个抽象类，该类实现了接口Processor。<br>抽象类AbstractProcessor以及接口Processor都是位于包<code>javax.annotation.processing</code>中。该接口中定义的所有类、接口都是与实现注解处理器相关的。AbstractProcessor有4个关键的回调方法：</p>
+<h3 id="Java抽象类AbstractProcessor介绍"><a href="#Java抽象类AbstractProcessor介绍" class="headerlink" title="Java抽象类AbstractProcessor介绍"></a>Java抽象类AbstractProcessor介绍</h3><p>如果我们在代码中使用@BindView，那么在编译时，ButterKnife会在一个继承自AbstractProcessor的子类中对注解进行解析。因为在java文件编译时，如果一个注解的 @Retention 为 CLASS，那么我们需要自定义一个类继承自AbstractProcessor（编译器在编译时自动查找所有继承自 AbstractProcessor 的类，然后调用他们的 process 方法），然后重写其中的 process 函数。AbstractProcessor，是一个抽象类，该类实现了接口Processor。<br>抽象类AbstractProcessor以及接口Processor都是位于包<code>javax.annotation.processing</code>中。该接口中定义的所有类、接口都是与实现注解处理器相关的。AbstractProcessor有4个关键的回调方法：</p>
 <pre><code>public class MyProcessor extends AbstractProcessor {
 // 在 Processor 创建时调用并执行的初始化操作
 @Override
@@ -440,8 +430,7 @@ public SourceVersion getSupportedSourceVersion() { }
 }
 </code></pre><p>我们在引用ButterKnife的时候，这里的<code>com.jakewharton:butterknife-compiler</code> 就是自定义的注解处理器。<br>    dependencies {<br>      compile ‘com.jakewharton:butterknife:8.0.1’<br>      apt ‘com.jakewharton:butterknife-compiler:8.0.1’<br>    }<br>但是我在项目结构中找了很久也没有找到这个库的文件，有可能是在编译时才去访问的，如果需要可以在 GitHub 中找到：</p>
 <p><a href="https://github.com/JakeWharton/butterknife/tree/master/butterknife-compiler" title="butterknife-compiler" target="_blank" rel="noopener">https://github.com/JakeWharton/butterknife/tree/master/butterknife-compiler</a></p>
-<p>###ButterKnifeProcessor主要逻辑</p>
-<p>下面我们来看下ButterKnife的注解处理器ButterKnifeProcessor的源码：</p>
+<h3 id="ButterKnifeProcessor主要逻辑"><a href="#ButterKnifeProcessor主要逻辑" class="headerlink" title="ButterKnifeProcessor主要逻辑"></a>ButterKnifeProcessor主要逻辑</h3><p>下面我们来看下ButterKnife的注解处理器ButterKnifeProcessor的源码：</p>
 <pre><code>@Override public boolean process(Set&lt;? extends TypeElement&gt; elements, RoundEnvironment env) {
 
 // 查找并解析注解
@@ -554,8 +543,17 @@ for (Map.Entry&lt;TypeElement, BindingClass&gt; entry : targetClassMap.entrySet(
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -610,6 +608,22 @@ for (Map.Entry&lt;TypeElement, BindingClass&gt; entry : targetClassMap.entrySet(
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#注解的概念"><span class="nav-number">1.</span> <span class="nav-text">注解的概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#注解的使用"><span class="nav-number">2.</span> <span class="nav-text">注解的使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Target"><span class="nav-number">2.1.</span> <span class="nav-text">@Target</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Retention"><span class="nav-number">2.2.</span> <span class="nav-text">@Retention</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Documented"><span class="nav-number">2.3.</span> <span class="nav-text">@Documented</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Inherited"><span class="nav-number">2.4.</span> <span class="nav-text">@Inherited</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解析注解"><span class="nav-number">3.</span> <span class="nav-text">解析注解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#定义注解"><span class="nav-number">3.1.</span> <span class="nav-text">定义注解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用注解"><span class="nav-number">3.2.</span> <span class="nav-text">使用注解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解析注解-1"><span class="nav-number">3.3.</span> <span class="nav-text">解析注解</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ButterKnife源码中注解实现原理"><span class="nav-number">4.</span> <span class="nav-text">ButterKnife源码中注解实现原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ButterKnife大概原理"><span class="nav-number">4.1.</span> <span class="nav-text">ButterKnife大概原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Java抽象类AbstractProcessor介绍"><span class="nav-number">4.2.</span> <span class="nav-text">Java抽象类AbstractProcessor介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ButterKnifeProcessor主要逻辑"><span class="nav-number">4.3.</span> <span class="nav-text">ButterKnifeProcessor主要逻辑</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
