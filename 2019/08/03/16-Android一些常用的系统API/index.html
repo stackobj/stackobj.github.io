@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="###获取手机网络运营商 public static String getOperatorName(Context context) {     /*      * getSimOperatorName()就可以直接获取到运营商的名字      * 也可以使用IMSI获取，getSimOperator()，然后根据返回值判断，例如&amp;quot;46000&amp;quot;为移动      * IMSI相关">
+<meta name="description" content="获取手机网络运营商public static String getOperatorName(Context context) {     /*      * getSimOperatorName()就可以直接获取到运营商的名字      * 也可以使用IMSI获取，getSimOperator()，然后根据返回值判断，例如&amp;quot;46000&amp;quot;为移动      * IMSI相关链接：h">
 <meta name="keywords" content="Java">
 <meta property="og:type" content="article">
 <meta property="og:title" content="SQLite数据库：建表，数据操作，更新版本详解">
 <meta property="og:url" content="http://yoursite.com/2019/08/03/16-Android一些常用的系统API/index.html">
 <meta property="og:site_name" content="黄凌霄的技术专栏">
-<meta property="og:description" content="###获取手机网络运营商 public static String getOperatorName(Context context) {     /*      * getSimOperatorName()就可以直接获取到运营商的名字      * 也可以使用IMSI获取，getSimOperator()，然后根据返回值判断，例如&amp;quot;46000&amp;quot;为移动      * IMSI相关">
+<meta property="og:description" content="获取手机网络运营商public static String getOperatorName(Context context) {     /*      * getSimOperatorName()就可以直接获取到运营商的名字      * 也可以使用IMSI获取，getSimOperator()，然后根据返回值判断，例如&amp;quot;46000&amp;quot;为移动      * IMSI相关链接：h">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-08-04T04:14:12.097Z">
+<meta property="og:updated_time" content="2019-08-04T04:17:17.848Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SQLite数据库：建表，数据操作，更新版本详解">
-<meta name="twitter:description" content="###获取手机网络运营商 public static String getOperatorName(Context context) {     /*      * getSimOperatorName()就可以直接获取到运营商的名字      * 也可以使用IMSI获取，getSimOperator()，然后根据返回值判断，例如&amp;quot;46000&amp;quot;为移动      * IMSI相关">
+<meta name="twitter:description" content="获取手机网络运营商public static String getOperatorName(Context context) {     /*      * getSimOperatorName()就可以直接获取到运营商的名字      * 也可以使用IMSI获取，getSimOperator()，然后根据返回值判断，例如&amp;quot;46000&amp;quot;为移动      * IMSI相关链接：h">
 
 
 
@@ -310,8 +310,7 @@
       
 
       
-        <p>###获取手机网络运营商</p>
-<pre><code>public static String getOperatorName(Context context) {
+        <h3 id="获取手机网络运营商"><a href="#获取手机网络运营商" class="headerlink" title="获取手机网络运营商"></a>获取手机网络运营商</h3><pre><code>public static String getOperatorName(Context context) {
     /*
      * getSimOperatorName()就可以直接获取到运营商的名字
      * 也可以使用IMSI获取，getSimOperator()，然后根据返回值判断，例如&quot;46000&quot;为移动
@@ -322,9 +321,13 @@
     return telephonyManager.getSimOperatorName();
 }
 </code></pre><a id="more"></a>
-<p>###获取已经使用的内存百分比<br>      public static String getUsedPercentValue(Context context) {<br>           long totalMemorySize = getTotalMemory();<br>           long availableSize = getAvailableMemory(context) / 1024;<br>           int percent = (int) ((totalMemorySize - availableSize) / (float) totalMemorySize * 100);<br>           return percent + “%”;<br>      }</p>
-<p>###获取wifi模块所连接的无线网网关的mac地址</p>
-<pre><code>public static String getGatewayMac(Context context) {
+<h3 id="获取已经使用的内存百分比"><a href="#获取已经使用的内存百分比" class="headerlink" title="获取已经使用的内存百分比"></a>获取已经使用的内存百分比</h3><pre><code>public static String getUsedPercentValue(Context context) {
+     long totalMemorySize = getTotalMemory();
+     long availableSize = getAvailableMemory(context) / 1024;
+     int percent = (int) ((totalMemorySize - availableSize) / (float) totalMemorySize * 100);
+     return percent + &quot;%&quot;;
+}
+</code></pre><h3 id="获取wifi模块所连接的无线网网关的mac地址"><a href="#获取wifi模块所连接的无线网网关的mac地址" class="headerlink" title="获取wifi模块所连接的无线网网关的mac地址"></a>获取wifi模块所连接的无线网网关的mac地址</h3><pre><code>public static String getGatewayMac(Context context) {
 
 WifiManager wm = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 if (wm != null) {
@@ -427,8 +430,17 @@ return null;
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -483,6 +495,22 @@ return null;
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#获取手机网络运营商"><span class="nav-number">1.</span> <span class="nav-text">获取手机网络运营商</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#获取已经使用的内存百分比"><span class="nav-number">2.</span> <span class="nav-text">获取已经使用的内存百分比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#获取wifi模块所连接的无线网网关的mac地址"><span class="nav-number">3.</span> <span class="nav-text">获取wifi模块所连接的无线网网关的mac地址</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       

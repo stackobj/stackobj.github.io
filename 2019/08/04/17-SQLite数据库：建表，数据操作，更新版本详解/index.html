@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="##SQLite介绍 SQLite是一款轻型的数据库，是遵守ACID的关联式数据库管理系统，它的设计目标是嵌入式的，而且目前已经在很多嵌入式产品中使用了它，它占用资源非常的低，在嵌入式设备中，可能只需要几百K的内存就够了。它能够支持 Windows/Linux/Unix等等主流的操作系统，同时能够跟很多程序语言相结合，比如Tcl、PHP、Java、C++、.Net等，还有ODBC接口，同样比起 M">
+<meta name="description" content="SQLite介绍SQLite是一款轻型的数据库，是遵守ACID的关联式数据库管理系统，它的设计目标是嵌入式的，而且目前已经在很多嵌入式产品中使用了它，它占用资源非常的低，在嵌入式设备中，可能只需要几百K的内存就够了。它能够支持 Windows/Linux/Unix等等主流的操作系统，同时能够跟很多程序语言相结合，比如Tcl、PHP、Java、C++、.Net等，还有ODBC接口，同样比起 Mysq">
 <meta name="keywords" content="Java">
 <meta property="og:type" content="article">
 <meta property="og:title" content="SQLite数据库：建表，数据操作，更新版本详解">
 <meta property="og:url" content="http://yoursite.com/2019/08/04/17-SQLite数据库：建表，数据操作，更新版本详解/index.html">
 <meta property="og:site_name" content="黄凌霄的技术专栏">
-<meta property="og:description" content="##SQLite介绍 SQLite是一款轻型的数据库，是遵守ACID的关联式数据库管理系统，它的设计目标是嵌入式的，而且目前已经在很多嵌入式产品中使用了它，它占用资源非常的低，在嵌入式设备中，可能只需要几百K的内存就够了。它能够支持 Windows/Linux/Unix等等主流的操作系统，同时能够跟很多程序语言相结合，比如Tcl、PHP、Java、C++、.Net等，还有ODBC接口，同样比起 M">
+<meta property="og:description" content="SQLite介绍SQLite是一款轻型的数据库，是遵守ACID的关联式数据库管理系统，它的设计目标是嵌入式的，而且目前已经在很多嵌入式产品中使用了它，它占用资源非常的低，在嵌入式设备中，可能只需要几百K的内存就够了。它能够支持 Windows/Linux/Unix等等主流的操作系统，同时能够跟很多程序语言相结合，比如Tcl、PHP、Java、C++、.Net等，还有ODBC接口，同样比起 Mysq">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-08-04T04:14:17.424Z">
+<meta property="og:updated_time" content="2019-08-04T04:18:30.778Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SQLite数据库：建表，数据操作，更新版本详解">
-<meta name="twitter:description" content="##SQLite介绍 SQLite是一款轻型的数据库，是遵守ACID的关联式数据库管理系统，它的设计目标是嵌入式的，而且目前已经在很多嵌入式产品中使用了它，它占用资源非常的低，在嵌入式设备中，可能只需要几百K的内存就够了。它能够支持 Windows/Linux/Unix等等主流的操作系统，同时能够跟很多程序语言相结合，比如Tcl、PHP、Java、C++、.Net等，还有ODBC接口，同样比起 M">
+<meta name="twitter:description" content="SQLite介绍SQLite是一款轻型的数据库，是遵守ACID的关联式数据库管理系统，它的设计目标是嵌入式的，而且目前已经在很多嵌入式产品中使用了它，它占用资源非常的低，在嵌入式设备中，可能只需要几百K的内存就够了。它能够支持 Windows/Linux/Unix等等主流的操作系统，同时能够跟很多程序语言相结合，比如Tcl、PHP、Java、C++、.Net等，还有ODBC接口，同样比起 Mysq">
 
 
 
@@ -310,10 +310,8 @@
       
 
       
-        <p>##SQLite介绍</p>
-<p>SQLite是一款轻型的数据库，是遵守ACID的关联式数据库管理系统，它的设计目标是嵌入式的，而且目前已经在很多嵌入式产品中使用了它，它占用资源非常的低，在嵌入式设备中，可能只需要几百K的内存就够了。它能够支持 Windows/Linux/Unix等等主流的操作系统，同时能够跟很多程序语言相结合，比如Tcl、PHP、Java、C++、.Net等，还有ODBC接口，同样比起 Mysql、PostgreSQL这两款开源世界著名的数据库管理系统来讲，它的处理速度比他们都快。</p>
-<p>###特点</p>
-<ol>
+        <h2 id="SQLite介绍"><a href="#SQLite介绍" class="headerlink" title="SQLite介绍"></a>SQLite介绍</h2><p>SQLite是一款轻型的数据库，是遵守ACID的关联式数据库管理系统，它的设计目标是嵌入式的，而且目前已经在很多嵌入式产品中使用了它，它占用资源非常的低，在嵌入式设备中，可能只需要几百K的内存就够了。它能够支持 Windows/Linux/Unix等等主流的操作系统，同时能够跟很多程序语言相结合，比如Tcl、PHP、Java、C++、.Net等，还有ODBC接口，同样比起 Mysql、PostgreSQL这两款开源世界著名的数据库管理系统来讲，它的处理速度比他们都快。</p>
+<h3 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h3><ol>
 <li>SQLite和C/S模式的数据库软件不同，它是进程内的数据库引擎，因此不存在数据库的客户端和服务器。</li>
 <li>使用SQLite一般只需要带上它的一个动态库，就可以享受它的全部功能。而且那个动态库的尺寸也挺小，以版本3.6.11为例，Windows下487KB、Linux下347KB。</li>
 <li>SQLite的核心引擎本身不依赖第三方的软件，使用它也不需要”安装”。有点类似那种绿色软件。</li>
@@ -322,8 +320,7 @@
 <li>它是开源的。</li>
 </ol>
 <a id="more"></a>
-<p>###SQLite的存储的数据类型</p>
-<p>一般数据采用的固定的静态数据类型，而SQLite采用的是动态数据类型，会根据存入值自动判断。SQLite具有以下五种常用的数据类型：</p>
+<h3 id="SQLite的存储的数据类型"><a href="#SQLite的存储的数据类型" class="headerlink" title="SQLite的存储的数据类型"></a>SQLite的存储的数据类型</h3><p>一般数据采用的固定的静态数据类型，而SQLite采用的是动态数据类型，会根据存入值自动判断。SQLite具有以下五种常用的数据类型：</p>
 <p>NULL: 这个值为空值</p>
 <p>VARCHAR(n)：长度不固定且其最大长度为 n 的字串，n不能超过 4000。</p>
 <p>CHAR(n)：长度固定为n的字串，n不能超过 254。</p>
@@ -333,8 +330,7 @@
 <p>BLOB: 值是BLOB数据块，以输入的数据格式进行存储。如何输入就如何存储,不改  变格式。</p>
 <p>DATA ：包含了 年份、月份、日期。</p>
 <p>TIME： 包含了 小时、分钟、秒。</p>
-<p>##SQLiteDatabase的介绍</p>
-<p>Android提供了创建和是用SQLite数据库的API。SQLiteDatabase代表一个数据库对象，提供了操作数据库的一些方法。在Android的SDK目录下有sqlite3工具，我们可以利用它创建数据库、创建表和执行一些SQL语句。下面是SQLiteDatabase的常用方法。</p>
+<h2 id="SQLiteDatabase的介绍"><a href="#SQLiteDatabase的介绍" class="headerlink" title="SQLiteDatabase的介绍"></a>SQLiteDatabase的介绍</h2><p>Android提供了创建和是用SQLite数据库的API。SQLiteDatabase代表一个数据库对象，提供了操作数据库的一些方法。在Android的SDK目录下有sqlite3工具，我们可以利用它创建数据库、创建表和执行一些SQL语句。下面是SQLiteDatabase的常用方法。</p>
 <p>SQLiteDatabase的常用API：</p>
 <pre><code>打开或创建数据库 openOrCreateDatabase(String path,SQLiteDatabase.CursorFactory  factory)
 
@@ -350,8 +346,7 @@ groupBy,String having,String  orderBy)
 执行一条SQL语句 execSQL(String sql)
 
 关闭数据库 close()
-</code></pre><p>##使用SQLiteDatabase</p>
-<ol>
+</code></pre><h2 id="使用SQLiteDatabase"><a href="#使用SQLiteDatabase" class="headerlink" title="使用SQLiteDatabase"></a>使用SQLiteDatabase</h2><ol>
 <li><strong>打开或者创建数据库：</strong>在Android 中使用SQLiteDatabase的静态方法openOrCreateDatabase(String  path,SQLiteDatabae.CursorFactory  factory)打开或者创建一个数据库。它会自动去检测是否存在这个数据库，如果存在则打开，不存在则创建一个数据库；创建成功则返回一个SQLiteDatabase对象，否则抛出异常FileNotFoundException。</li>
 <li><strong>创建表：</strong>我们需要编写创建表的SQL语句，然后调用SQLiteDatabase的execSQL()方法来执行SQL语句就可以了。</li>
 <li></li>
@@ -451,8 +446,17 @@ groupBy,String having,String  orderBy)
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -507,6 +511,22 @@ groupBy,String having,String  orderBy)
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#SQLite介绍"><span class="nav-number">1.</span> <span class="nav-text">SQLite介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#特点"><span class="nav-number">1.1.</span> <span class="nav-text">特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SQLite的存储的数据类型"><span class="nav-number">1.2.</span> <span class="nav-text">SQLite的存储的数据类型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SQLiteDatabase的介绍"><span class="nav-number">2.</span> <span class="nav-text">SQLiteDatabase的介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用SQLiteDatabase"><span class="nav-number">3.</span> <span class="nav-text">使用SQLiteDatabase</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
