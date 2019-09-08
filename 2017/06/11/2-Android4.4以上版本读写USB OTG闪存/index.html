@@ -87,13 +87,13 @@
 <meta property="og:site_name" content="黄凌霄的技术专栏">
 <meta property="og:description" content="写这篇文章的目的，主要是记录下Android开发板读写USB闪存的过程，测试环境是全志A64开发板，系统版本是Android 5.1。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/img/es文件管理器.jpg">
-<meta property="og:image" content="http://yoursite.com/img/es文件管理器2.jpg">
+<meta property="og:image" content="http://yoursite.com/2017/06/11/2-Android4/es文件管理器.jpg">
+<meta property="og:image" content="http://yoursite.com/2017/06/11/2-Android4/es文件管理器2.jpg">
 <meta property="og:updated_time" content="2018-05-11T14:34:36.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Android4.4以上版本读写USB OTG闪存">
 <meta name="twitter:description" content="写这篇文章的目的，主要是记录下Android开发板读写USB闪存的过程，测试环境是全志A64开发板，系统版本是Android 5.1。">
-<meta name="twitter:image" content="http://yoursite.com/img/es文件管理器.jpg">
+<meta name="twitter:image" content="http://yoursite.com/2017/06/11/2-Android4/es文件管理器.jpg">
 
 
 
@@ -324,8 +324,8 @@
 </code></pre><p>来判断内置的这个存储卡是否被正常挂载。<br>（3）写入数据到文件：</p>
 <pre><code>FileOutputStream fos = new FileOutputStream(filepath);
 fos.write(&quot;这里是输出内容……&quot;.getBytes());
-</code></pre><h2 id="ES文件管理器的读写U盘的过程"><a href="#ES文件管理器的读写U盘的过程" class="headerlink" title="ES文件管理器的读写U盘的过程"></a>ES文件管理器的读写U盘的过程</h2><p>观察ES文件浏览器读写U盘的过程，当开发板插入U盘以后，ES文件浏览器可以获取到U盘文件列表，所以可以推测，ES是检测/storage/usbhost/这个目录下是否有文件来判断的。当使用ES创建文件或者文件夹的时候，ES文件浏览器弹出了下图这个提示（注：由于开发板尚不能截屏，本图是从网络上获取到的，回头补上），按照Dialog提示的，点击“选择” ，打开如下第二个界面，点击“选择SD卡”，界面自动返回到APP，ES文件浏览器提示创建文件成功。由此可以断定，第三方APP读取U盘是需要申请权限的，并且由用户来决定第三方APP有权限修改U盘的哪些文件目录。<br><img src="/img/es文件管理器.jpg" alt="AndroidEs文件管理器"></p>
-<p>点击上图的“选择”按钮打开的界面：<br><img src="/img/es文件管理器2.jpg" alt="AndroidEs文件管理器"></p>
+</code></pre><h2 id="ES文件管理器的读写U盘的过程"><a href="#ES文件管理器的读写U盘的过程" class="headerlink" title="ES文件管理器的读写U盘的过程"></a>ES文件管理器的读写U盘的过程</h2><p>观察ES文件浏览器读写U盘的过程，当开发板插入U盘以后，ES文件浏览器可以获取到U盘文件列表，所以可以推测，ES是检测/storage/usbhost/这个目录下是否有文件来判断的。当使用ES创建文件或者文件夹的时候，ES文件浏览器弹出了下图这个提示（注：由于开发板尚不能截屏，本图是从网络上获取到的，回头补上），按照Dialog提示的，点击“选择” ，打开如下第二个界面，点击“选择SD卡”，界面自动返回到APP，ES文件浏览器提示创建文件成功。由此可以断定，第三方APP读取U盘是需要申请权限的，并且由用户来决定第三方APP有权限修改U盘的哪些文件目录。<br><img src="/2017/06/11/2-Android4/es文件管理器.jpg" alt="AndroidEs文件管理器"></p>
+<p>点击上图的“选择”按钮打开的界面：<br><img src="/2017/06/11/2-Android4/es文件管理器2.jpg" alt="AndroidEs文件管理器"></p>
 <p>读写U盘实践</p>
 <p>首先读取U盘路径的话，可以通过检测/storage/usbhost/是否有有挂载U盘设备文件来判断，通过常规的file.listfile()方法即可得到文件目录，下面着重说一下写文件的过程。</p>
 <p>（1）当需要创建文件的时候，首先通过一个Intent打开设备管理界面，申请写权限，代码如下：</p>

@@ -87,12 +87,12 @@
 <meta property="og:site_name" content="黄凌霄的技术专栏">
 <meta property="og:description" content="Activity的生命周期是Android最基本和最重要的知识点之一。如果能深入地理解Activity的生命周期，对我们出开发优秀的APP很有帮助，这篇文章就来讲讲这个知识点。 一、生命周期Activity是一个View对象的容器，也是View的事件分发机制的起点。它可以构成APP一个个可见的界面。官方给出Activity的生命周期图是这样的：">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/img/Acitivity生命周期.png">
+<meta property="og:image" content="http://yoursite.com/.com//Acitivity生命周期.png">
 <meta property="og:updated_time" content="2018-05-11T14:34:36.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="简述Android Activity的生命周期">
 <meta name="twitter:description" content="Activity的生命周期是Android最基本和最重要的知识点之一。如果能深入地理解Activity的生命周期，对我们出开发优秀的APP很有帮助，这篇文章就来讲讲这个知识点。 一、生命周期Activity是一个View对象的容器，也是View的事件分发机制的起点。它可以构成APP一个个可见的界面。官方给出Activity的生命周期图是这样的：">
-<meta name="twitter:image" content="http://yoursite.com/img/Acitivity生命周期.png">
+<meta name="twitter:image" content="http://yoursite.com/.com//Acitivity生命周期.png">
 
 
 
@@ -314,7 +314,7 @@
       
         <p>Activity的生命周期是Android最基本和最重要的知识点之一。如果能深入地理解Activity的生命周期，对我们出开发优秀的APP很有帮助，这篇文章就来讲讲这个知识点。</p>
 <h2 id="一、生命周期"><a href="#一、生命周期" class="headerlink" title="一、生命周期"></a>一、生命周期</h2><p>Activity是一个View对象的容器，也是View的事件分发机制的起点。它可以构成APP一个个可见的界面。官方给出Activity的生命周期图是这样的：<br><a id="more"></a></p>
-<p>Activity从创建，到被Android回收，Android系统会依次回调以下几个方法：<br><img src="/img/Acitivity生命周期.png" alt="Activity生命周期"></p>
+<p>Activity从创建，到被Android回收，Android系统会依次回调以下几个方法：<br><img src="/.com//Acitivity生命周期.png" alt="Activity生命周期"></p>
 <h3 id="1、onCreate"><a href="#1、onCreate" class="headerlink" title="1、onCreate()"></a>1、onCreate()</h3><p>Activity正在被创建，这个时候Activity的View是不可见的，在这里我们可以进行一些初始化的工作，如setContentView加载Activity的内容View，或者对控件和变量进行初始化。</p>
 <h3 id="2、onStart"><a href="#2、onStart" class="headerlink" title="2、onStart()"></a>2、onStart()</h3><p>回调这个方法的时候，Activity已经可见了，但是此时还不能和用户交互。从生命周期的流程图我么可以看到，每次Activity被切换为可见状态的时候，都会执行onStart，所以这里不便于进行控件和变量的初始化。</p>
 <h3 id="3、onResume"><a href="#3、onResume" class="headerlink" title="3、onResume()  "></a>3、onResume()  </h3><p>回调这个方法的时候，Activity是可见的，并且可以和用户交互。</p>

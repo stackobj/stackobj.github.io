@@ -87,13 +87,13 @@
 <meta property="og:site_name" content="黄凌霄的技术专栏">
 <meta property="og:description" content="关于View的事件分发机制是Android的核心内容之一，关于这部分内容网络上有很多，在这里我也简单谈下我对View的事件分发机制的理解。我将从以下几个方面开始：  Android屏幕视图的构成  什么是事件序列  事件的传递过程  ViewGroup对事件的分发 从源码的角度分析ViewGroup的分发  补充说明">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/img/android屏幕坐标参考图3.jpg">
-<meta property="og:image" content="http://yoursite.com/img/android屏幕坐标参考图4.jpg">
+<meta property="og:image" content="http://yoursite.com/.com//android屏幕坐标参考图3.jpg">
+<meta property="og:image" content="http://yoursite.com/.com//android屏幕坐标参考图4.jpg">
 <meta property="og:updated_time" content="2018-05-11T14:34:36.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="view知识体系（2）—— 从源码角度理解View的事件分发机制">
 <meta name="twitter:description" content="关于View的事件分发机制是Android的核心内容之一，关于这部分内容网络上有很多，在这里我也简单谈下我对View的事件分发机制的理解。我将从以下几个方面开始：  Android屏幕视图的构成  什么是事件序列  事件的传递过程  ViewGroup对事件的分发 从源码的角度分析ViewGroup的分发  补充说明">
-<meta name="twitter:image" content="http://yoursite.com/img/android屏幕坐标参考图3.jpg">
+<meta name="twitter:image" content="http://yoursite.com/.com//android屏幕坐标参考图3.jpg">
 
 
 
@@ -323,9 +323,9 @@
 <li>补充说明<a id="more"></a>
 </li>
 </ol>
-<h2 id="1、Android屏幕视图的构成"><a href="#1、Android屏幕视图的构成" class="headerlink" title="1、Android屏幕视图的构成"></a>1、Android屏幕视图的构成</h2><p><img src="/img/android屏幕坐标参考图3.jpg" alt="AndroidEs屏幕坐标参考"></p>
+<h2 id="1、Android屏幕视图的构成"><a href="#1、Android屏幕视图的构成" class="headerlink" title="1、Android屏幕视图的构成"></a>1、Android屏幕视图的构成</h2><p><img src="/.com//android屏幕坐标参考图3.jpg" alt="AndroidEs屏幕坐标参考"></p>
 <p>Android屏幕上显示的各个视图其实是Activity-&gt;PhoneWindows-&gt;DecorView-&gt;ContentView这样层层嵌套组成的，如上图所示。OnCreate中setContentView方法所设置的内容View就是最内层的ContentView。TitleView是默认的标题栏，一般都会隐藏掉。</p>
-<p><img src="/img/android屏幕坐标参考图4.jpg" alt="AndroidEs屏幕坐标参考"></p>
+<p><img src="/.com//android屏幕坐标参考图4.jpg" alt="AndroidEs屏幕坐标参考"></p>
 <p>最内层的ContentView由View和ViewGroup构成的，ViewGroup又可以嵌套View和ViewGroup，如上图所示的树形图。</p>
 <p>Android屏幕上所呈现的视图，就是这样构建的。</p>
 <h2 id="2、什么是事件序列"><a href="#2、什么是事件序列" class="headerlink" title="2、什么是事件序列"></a>2、什么是事件序列</h2><p>当我们在屏幕上进行点击或触摸操作的时候，在Android看来，发生了以下几个事件类型：</p>
