@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="Android," />
 
 
 
@@ -79,16 +79,18 @@
 
 
 
-<meta name="description" content="Android App开发从业5年，参与过智慧校园、智能家居、智慧生活，网约车等领域的多个项目的研发工作。">
-<meta property="og:type" content="website">
-<meta property="og:title" content="黄凌霄的技术专栏">
-<meta property="og:url" content="http://yoursite.com/archives/2019/index.html">
+<meta name="description" content="Android的RequestCode和Result经常忘记，所以写这篇文章来记录一下。">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="-RequestCode和ResultCode详解">
+<meta property="og:url" content="http://yoursite.com/2019/08/31/18-RequestCode和ResultCode详解/index.html">
 <meta property="og:site_name" content="黄凌霄的技术专栏">
-<meta property="og:description" content="Android App开发从业5年，参与过智慧校园、智能家居、智慧生活，网约车等领域的多个项目的研发工作。">
+<meta property="og:description" content="Android的RequestCode和Result经常忘记，所以写这篇文章来记录一下。">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-08-31T01:11:17.738Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="黄凌霄的技术专栏">
-<meta name="twitter:description" content="Android App开发从业5年，参与过智慧校园、智能家居、智慧生活，网约车等领域的多个项目的研发工作。">
+<meta name="twitter:title" content="-RequestCode和ResultCode详解">
+<meta name="twitter:description" content="Android的RequestCode和Result经常忘记，所以写这篇文章来记录一下。">
 
 
 
@@ -118,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/archives/2019/"/>
+  <link rel="canonical" href="http://yoursite.com/2019/08/31/18-RequestCode和ResultCode详解/"/>
 
 
 
 
 
-  <title>归档 | 黄凌霄的技术专栏</title>
+  <title>-RequestCode和ResultCode详解 | 黄凌霄的技术专栏</title>
   
 
 
@@ -143,7 +145,7 @@
     
   
 
-  <div class="container sidebar-position-right page-archive">
+  <div class="container sidebar-position-right page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -227,222 +229,151 @@
           <div id="content" class="content">
             
 
-  
-  
-  
-  <div class="post-block archive">
-    <div id="posts" class="posts-collapse">
-      <span class="archive-move-on"></span>
+  <div id="posts" class="posts-expand">
+    
 
-      <span class="archive-page-counter">
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/31/18-RequestCode和ResultCode详解/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="黄凌霄">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myhead.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="黄凌霄的技术专栏">
+    </span>
+
+    
+      <header class="post-header">
+
         
         
+          <h1 class="post-title" itemprop="name headline">-RequestCode和ResultCode详解</h1>
         
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-31T22:15:22+08:00">
+                2019-08-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
           
-        
-        嗯..! 目前共计 19 篇日志。 继续努力。
-      </span>
 
-      
-
-        
-        
-        
-
-        
           
-          <div class="collection-title">
-            <h1 class="archive-year" id="archive-year-2019">2019</h1>
-          </div>
-        
-        
+            
+          
 
-        
+          
+          
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+          
 
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/09/08/19-分类整理res目录下Layouts中的布局文件/" itemprop="url">
-              
-                <span itemprop="name">日常笔记-分类整理res目录下Layouts中的布局文件</span>
-              
-            </a>
-        
-      </h2>
+          
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2019-09-08T22:15:22+08:00"
-              content="2019-09-08" >
-          09-08
-        </time>
-      </div>
+          
 
-    </header>
-  </article>
+        </div>
+      </header>
+    
 
-
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/08/31/18-RequestCode和ResultCode详解/" itemprop="url">
-              
-                <span itemprop="name">-RequestCode和ResultCode详解</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2019-08-31T22:15:22+08:00"
-              content="2019-08-31" >
-          08-31
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
       
 
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/08/04/17-SQLite数据库：建表，数据操作，更新版本详解/" itemprop="url">
-              
-                <span itemprop="name">SQLite数据库：建表，数据操作，更新版本详解</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2019-08-04T22:15:22+08:00"
-              content="2019-08-04" >
-          08-04
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
+      
+        <p>Android的RequestCode和Result经常忘记，所以写这篇文章来记录一下。</p>
 
       
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/08/03/16-Android一些常用的系统API/" itemprop="url">
-              
-                <span itemprop="name">16-Android一些常用的系统API</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2019-08-03T22:15:22+08:00"
-              content="2019-08-03" >
-          08-03
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/07/30/15-ButterKnife源码注解实现原理/" itemprop="url">
-              
-                <span itemprop="name">ButterKnife源码注解实现原理</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2019-07-30T22:15:22+08:00"
-              content="2019-07-30" >
-          07-30
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
     </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/08/04/17-SQLite数据库：建表，数据操作，更新版本详解/" rel="next" title="SQLite数据库：建表，数据操作，更新版本详解">
+                <i class="fa fa-chevron-left"></i> SQLite数据库：建表，数据操作，更新版本详解
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/09/08/19-分类整理res目录下Layouts中的布局文件/" rel="prev" title="日常笔记-分类整理res目录下Layouts中的布局文件">
+                日常笔记-分类整理res目录下Layouts中的布局文件 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
 
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -450,6 +381,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -659,6 +594,10 @@
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
