@@ -87,13 +87,13 @@
 <meta property="og:site_name" content="黄凌霄的技术专栏">
 <meta property="og:description" content="公司的这个项目开始很久了，这几天稍微不太忙，才开始写这篇文章，总结下Android开发板串口通讯开发的过程，主要是记录以下几个方面：我对什么是Android串口通讯的理解，快速开发串口通讯的一个解决方案，串口App程序调试的方法，以及关于串口通讯代码抽象的几个关键点。因为内容较多，所以分为几个方面来写。以下文中涉及的Android开发板均是在Android 5.1，全志A64核心板环境下测试。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/.com//jni.jpg">
-<meta property="og:image" content="http://yoursite.com/.com//resultleft.jpg">
+<meta property="og:image" content="http://yoursite.com/2017/06/11/1-App和Android开发板串口通讯的原理和实践/jni.jpg">
+<meta property="og:image" content="http://yoursite.com/2017/06/11/1-App和Android开发板串口通讯的原理和实践/resultleft.jpg">
 <meta property="og:updated_time" content="2018-05-11T14:34:36.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="App和Android开发板串口通讯的原理和实践">
 <meta name="twitter:description" content="公司的这个项目开始很久了，这几天稍微不太忙，才开始写这篇文章，总结下Android开发板串口通讯开发的过程，主要是记录以下几个方面：我对什么是Android串口通讯的理解，快速开发串口通讯的一个解决方案，串口App程序调试的方法，以及关于串口通讯代码抽象的几个关键点。因为内容较多，所以分为几个方面来写。以下文中涉及的Android开发板均是在Android 5.1，全志A64核心板环境下测试。">
-<meta name="twitter:image" content="http://yoursite.com/.com//jni.jpg">
+<meta name="twitter:image" content="http://yoursite.com/2017/06/11/1-App和Android开发板串口通讯的原理和实践/jni.jpg">
 
 
 
@@ -324,10 +324,10 @@
 <h2 id="什么是Android串口"><a href="#什么是Android串口" class="headerlink" title="什么是Android串口"></a>什么是Android串口</h2><p>串口是Android系统对外提供的一种接口，接口至少有两个通道，一个负责输入数据，一个负责输出数据。比如可以连接单片机，进行Android系统和单片机的数据交换。</p>
 <h2 id="Android串口通讯原理和我对Android系统HAL层的理解"><a href="#Android串口通讯原理和我对Android系统HAL层的理解" class="headerlink" title="Android串口通讯原理和我对Android系统HAL层的理解"></a>Android串口通讯原理和我对Android系统HAL层的理解</h2><p>从Android OS的整体架构来讲，Android和硬件数据交互，可以先简单的理解为读写一个文件，比如LInux系统读取外部设备信息的时候，首先得到设备所挂载的路径，然后在Java层面实例化为一个File对象，这个File对象Java有一些读写的API供我们直接调用。而串口对于Android系统来说，其实本身也是属于一个硬件设备，所以Android和串口通讯的过程和这个类似：也有一个获取串口设备路径的方法，也需要构造一个SerialPort对象，这个SerialPort对象也有一些读写的API。不同的是这个SerialPort对象读写的API需要我们来写，我们来实现，不过我们可以参考Google官方给出的串口调试工具的实现。</p>
 <p>Android系统本身并没有直接和众多硬件设备交互，如串口，USB，Camera等，而是规定了统一的设备读写和配置的接口。如果不统一接口，Android系统需要针对每一种硬件设备、每一种厂商的硬件设备做判断，调用Linux内核中相应的硬件的读写和配置接口的驱动，并且硬件的厂商的硬件驱动需要放到Adroid的Linux内核中，以供Android调用，这是不可能实现的，因为硬件厂商将硬件驱动放到Linux内核，就必须遵守GPL开源协议将驱动程序公开，由于很多硬件厂商并不愿意将自家的驱动程序公开，于是Google规定了统一的设备读写和配置的接口：上层的应用按照这个接口调用读写配置硬件参数，各家硬件厂商按照这个接口来写驱动程序，这样就大大减少了Android对Linux内核的依赖，而Google只需要公开这个接口的代码即可，这个接口将底层硬件抽象化，屏蔽掉了底层的实现细节，这就是Android系统的HAL层。</p>
-<p>所以Java要和HAL层的C代码接口通讯就需要用到Java的Jni开发协议，这个协议规定了Java调用C代码的方法。关于JNI的开发，我会有专门的文章讲述。具体的通讯过程可以用下图表示：<br><img src="/.com//jni.jpg" alt="Android应用层和硬件的通讯过程"><br>APP应用构造出16进制的字节数据，交给JNI层（把数据交给JNI层的方式，简单来说就是定义一个和C方法同名的Java方法，并声明为native，然C代码的方法按照一定的格式写即可），JNI层的代码调用HAL层的读写配置硬件参数的方法，由HAL层和底层的硬件交互。</p>
+<p>所以Java要和HAL层的C代码接口通讯就需要用到Java的Jni开发协议，这个协议规定了Java调用C代码的方法。关于JNI的开发，我会有专门的文章讲述。具体的通讯过程可以用下图表示：<br><img src="/2017/06/11/1-App和Android开发板串口通讯的原理和实践/jni.jpg" alt="Android应用层和硬件的通讯过程"><br>APP应用构造出16进制的字节数据，交给JNI层（把数据交给JNI层的方式，简单来说就是定义一个和C方法同名的Java方法，并声明为native，然C代码的方法按照一定的格式写即可），JNI层的代码调用HAL层的读写配置硬件参数的方法，由HAL层和底层的硬件交互。</p>
 <h2 id="3分钟让项目代码获取串口通讯能力"><a href="#3分钟让项目代码获取串口通讯能力" class="headerlink" title="3分钟让项目代码获取串口通讯能力"></a>3分钟让项目代码获取串口通讯能力</h2><p>明白了通讯的原理以后，就可以着手开始开发了，Google在串口通讯这方面有一个Demo供大家参考：android-serialport-api ，下载地址：<a href="http://code.google.com/p/android-serialport-api/，很多Android开发板也内置了这个APP，使用这个APP可以测试开发板的串口是否工作正常。打开这个APP以后需要先配置串口的设备路径，波特率信息。" target="_blank" rel="noopener">http://code.google.com/p/android-serialport-api/，很多Android开发板也内置了这个APP，使用这个APP可以测试开发板的串口是否工作正常。打开这个APP以后需要先配置串口的设备路径，波特率信息。</a></p>
 <p>拿到源码以后，可以看到这个Demo的核心类有两个SerialPort、SerialPortFinder。SerialPort类里面封装了读写串口的API，比如打开串口，关闭串口等。SerialPortFinder封装了获取串口设备路径的方法，如getAllDevice()，返回的是字符串数组。使用路径和波特率实例化SerialPort对象，然后调用读写方法。有了这两个类，我们就没必要重新制造轮子了，下面我讲一下怎么让项目工程快速获取串口通讯能力，然后进行快速开发。</p>
-<p>先看一下项目集成以后的效果：<br><img src="/.com//resultleft.jpg" alt="Android应用层和硬件的通讯过程"><br>（1）把相应的文件拷贝到相应的目录。切记android_serialport_api的包名不要改，并且要放到java目录下，不要放在其他包下，因为jni文件里的C文件和这个包名有关。</p>
+<p>先看一下项目集成以后的效果：<br><img src="/2017/06/11/1-App和Android开发板串口通讯的原理和实践/resultleft.jpg" alt="Android应用层和硬件的通讯过程"><br>（1）把相应的文件拷贝到相应的目录。切记android_serialport_api的包名不要改，并且要放到java目录下，不要放在其他包下，因为jni文件里的C文件和这个包名有关。</p>
 <p>（2）修改主moudle下的build.gradle文件。</p>
 <p>在android节点下加入以下代码：</p>
 <pre><code>sourceSets {

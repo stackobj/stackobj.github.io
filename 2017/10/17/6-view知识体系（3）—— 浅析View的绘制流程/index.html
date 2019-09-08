@@ -87,12 +87,12 @@
 <meta property="og:site_name" content="黄凌霄的技术专栏">
 <meta property="og:description" content="Android的View是一个综合体系，它涉及View的层次结构，View的事件分发机制，View的绘制流程。上一节我们已经分析了View的层次结构和事件分发机制（链接：View知识体系[2] —— 从源码角度理解View的事件分发机制 ），这篇文章，我们来一步步分析下View的绘制流程。 View的绘制其实包含三个步骤：measure，layout，draw。measure过程是测量View或V">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://yoursite.com/.com//android屏幕坐标参考图4.jpg">
+<meta property="og:image" content="http://yoursite.com/2017/10/17/6-view知识体系（3）——%20浅析View的绘制流程/android屏幕坐标参考图4.jpg">
 <meta property="og:updated_time" content="2018-05-11T14:34:36.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="view知识体系（3）—— 浅析View的绘制流程">
 <meta name="twitter:description" content="Android的View是一个综合体系，它涉及View的层次结构，View的事件分发机制，View的绘制流程。上一节我们已经分析了View的层次结构和事件分发机制（链接：View知识体系[2] —— 从源码角度理解View的事件分发机制 ），这篇文章，我们来一步步分析下View的绘制流程。 View的绘制其实包含三个步骤：measure，layout，draw。measure过程是测量View或V">
-<meta name="twitter:image" content="http://yoursite.com/.com//android屏幕坐标参考图4.jpg">
+<meta name="twitter:image" content="http://yoursite.com/2017/10/17/6-view知识体系（3）——%20浅析View的绘制流程/android屏幕坐标参考图4.jpg">
 
 
 
@@ -333,7 +333,7 @@
 <p>MeasureSpec的产生过程举个例子先简单说下：比如有一个水平方向固定宽度的LinearLayout，并且这个LinearLayout嵌套一个子元素。在LinearLayout的onMeasure方法中，可以得到他自己在水平方向已经占用的尺寸。有这个LinearLayout本身的Padding，子元素的margin和宽度，所以这个LinearLayout可以得到他剩余的空间大小是SpecSize；这个LinearLayout又得知其子元素的宽度的参数是wrap_content，得到SpecMode为AT_MOST，SpecSize和SpecMode合成为一个MeasureSpec传递到子元素的onMeasure方法中，作为子元素测量自己和子元素大小的依据。</p>
 <p>这也就是上面说的那个结论：MeasureSpec的产生由父元素本身的MeasureSpec和子元素的LayoutParams（wrap和match，margin等）共同决定的。</p>
 <p>父元素的MeasureSpec和子元素的LayoutParams合成子元素的MeasureSpec有一个规则如下，左侧第一列代表子元素的LayoutParams，第一行代表父元素的SpecMode，parentsize为父元素中目前可以使用的大小，在下面的文章当中将介绍何时使用这个规则：</p>
-<p><img src="/.com//android屏幕坐标参考图4.jpg" alt="AndroidEs屏幕坐标参考"></p>
+<p><img src="/2017/10/17/6-view知识体系（3）—— 浅析View的绘制流程/android屏幕坐标参考图4.jpg" alt="AndroidEs屏幕坐标参考"></p>
 <h2 id="3、View的measure过程"><a href="#3、View的measure过程" class="headerlink" title="3、View的measure过程"></a>3、View的measure过程</h2><p>View的measure方法中会去调用View的onMeasure方法。View默认的onMeasure方法怎么实现的呢？</p>
 <pre><code>protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {  
     setMeasuredDimension(
